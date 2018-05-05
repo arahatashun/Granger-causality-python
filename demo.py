@@ -35,7 +35,11 @@ def main():
     T = 100  # length of time series
     sig = 0.2
     series, A = gen_synth(N, T, sig)
-    plt.spy(A)
+    fig, axs = plt.subplots(1, 2)
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.spy(A)
+    ax2.spy(A)
     plt.show()
 
 
