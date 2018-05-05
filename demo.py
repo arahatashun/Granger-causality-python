@@ -13,7 +13,10 @@ def genSynth(N, T, sig):
     :param N: number of time series (a multiple of 4)
     :param T: length of the time series
     :param sig: variance of the noise process
-    :return:
+    :return:(tuple): tuple containing:
+
+        series: times series data
+        A: Kronecker tensor product
     """
     assert N % 4 == 0, "N must be a multiple of 4"
     K = np.array([[0.9, 0, 0, 0], [1, 0.9, 0, 0], [1, 0, 0.9, 0], [1, 0, 0, 0.9]])
