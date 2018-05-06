@@ -8,6 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 from scipy import spatial
+from sklearn.metrics import f1_score
+
 
 def gen_synth(N, T, sig):
     """generate simulation data
@@ -31,6 +33,29 @@ def gen_synth(N, T, sig):
     return series, A
 
 
+def F_score(A, B):
+    """ Precision Recall F1 Score
+
+    :param A: Matirx
+    :param B: Matirx
+    :return:
+    """
+    threshold = 0.4
+    A[A < threshold] = 0
+    A[A >= threshold] = 1
+    B[B < threshold] = 0
+    B[B >= threshold] = 1
+    TP = np.zeros_like(A)
+    B_tmp = np.copy(B)
+    B_tmp[B<threshold] = -1
+    TP[B_tmp==A] = 1
+    true_positive = np.sum(TP)
+    precison = true_positive/np.sum(A)
+    recall = true_positive/np.sum(B)
+    score = 2 * precison *recall/(precison + recall)
+    return score
+
+
 def main():
     # generate synthetic data set
     N = 20  # number of time series
@@ -44,7 +69,7 @@ def main():
     for i in range(N):
         index = [i] + list(range(i)) + list(range(i + 1, N))
         cause_tmp = lasso_granger(series[index, :], L, alpha)
-        index = list(range(1, i+1)) + [0] + list(range(i+1, N))
+        index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
         cause[i, :] = cause_tmp[index]
 
     # plot
@@ -53,10 +78,12 @@ def main():
     ax2 = axs[1]
     ax1.spy(A)
     ax1.set_title('Ground Truth')
-    ax2.spy(cause,0.4)
+    ax2.spy(cause, 0.4)
     ax2.set_title('Inferred Causality')
     plt.show()
-    print("cosine distance", spatial.distance.cosine(A.flatten(),cause.flatten()))
+    print("cosine distance", spatial.distance.cosine(A.flatten(), cause.flatten()))
+    score = F_score(A, cause)
+    print("F score",score)
 
 if __name__ == '__main__':
     main()
