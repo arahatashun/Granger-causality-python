@@ -34,7 +34,7 @@ def gen_synth(N, T, sig):
 def main():
     # generate synthetic data set
     N = 20  # number of time series
-    T = 101  # length of time series
+    T = 100  # length of time series
     sig = 0.2
     series, A = gen_synth(N, T, sig)
     # Run Lasso-Granger
@@ -47,6 +47,8 @@ def main():
         index = list(range(1, i+1)) + [0] + list(range(i+1, N))
         cause[i, :] = cause_tmp[index]
 
+    print(cause)
+    # plot
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
