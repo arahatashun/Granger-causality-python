@@ -56,7 +56,7 @@ def main():
     ax2.spy(cause,0.4)
     ax2.set_title('Inferred Causality')
     plt.show()
-    print("cosine_similarity", 1 - spatial.distance.cosine(A.flatten(),cause.flatten()))
+    print("cosine distance", spatial.distance.cosine(A.flatten(),cause.flatten()))
 
 if __name__ == '__main__':
     main()

@@ -7,7 +7,7 @@ Code for lasso Granger
 import numpy as np
 from numpy import linalg as LA
 import glmnet_python
-from glmnet import glmnet, glmnetSet
+from glmnet import glmnet
 
 
 def lasso_granger(series, P, alpha):
@@ -37,7 +37,7 @@ def lasso_granger(series, P, alpha):
     n1Coeff = np.zeros((N, P))
     for i in range(N):
         n1Coeff[i, :] = vals2[i * P:(i + 1) * P]
-    
+
     sumCause = np.sum(np.abs(n1Coeff), axis=1)
     sumCause[sumCause < th] = 0
     cause = sumCause
