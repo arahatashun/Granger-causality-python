@@ -19,15 +19,14 @@ def lasso_granger(series, P, alpha):
     :return:
     """
     N, T = np.shape(series)
-    Am = np.zeros(T - P, P * N)
-    Bm = np.zeros(T - P, 1)
+    Am = np.zeros((T - P, P * N))
+    bm = np.zeros((T - P, 1))
     for i in np.arange(P + 1, T):
         bm[i - P] = series[1, i]
         Am[i - P, 1] = np.fliplr(series[:, i - P:i])
 
     # Lasso using GLMnet
-    options = glmnetSet(alpha=1, lambda_min=alpha)
-    fit = glmnet(x=Am, y=bm, family='gausian', alpha=1)
+    fit = glmnet(x=Am, y=bm, family='gausian', alpha=1,lambda_min=[alpha])
     vals2 = fit['beta']  # array of coefficient
 
     # Outputting aic metric for variable into (N,P) matrix
