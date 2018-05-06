@@ -7,7 +7,7 @@ Code for demonstration
 import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
-
+from scipy import spatial
 
 def gen_synth(N, T, sig):
     """generate simulation data
@@ -47,16 +47,16 @@ def main():
         index = list(range(1, i+1)) + [0] + list(range(i+1, N))
         cause[i, :] = cause_tmp[index]
 
-    print(cause)
     # plot
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
     ax1.spy(A)
     ax1.set_title('Ground Truth')
-    ax2.spy(cause)
+    ax2.spy(cause,0.4)
     ax2.set_title('Inferred Causality')
     plt.show()
+    print("cosine_similarity", 1 - spatial.distance.cosine(A.flatten(),cause.flatten()))
 
 if __name__ == '__main__':
     main()
