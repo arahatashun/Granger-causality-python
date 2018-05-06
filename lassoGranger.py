@@ -23,10 +23,10 @@ def lasso_granger(series, P, alpha):
     bm = np.zeros((T - P, 1))
     for i in np.arange(P + 1, T):
         bm[i - P] = series[1, i]
-        Am[i - P, 1] = np.fliplr(series[:, i - P:i])
+        Am[i - P, :] = np.fliplr(series[:, i - P:i]).flatten()
 
     # Lasso using GLMnet
-    fit = glmnet(x=Am, y=bm, family='gausian', alpha=1,lambda_min=[alpha])
+    fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1, lambda_min=[alpha])
     vals2 = fit['beta']  # array of coefficient
 
     # Outputting aic metric for variable into (N,P) matrix
@@ -36,9 +36,8 @@ def lasso_granger(series, P, alpha):
     # Reformatting the results into (N,P) matrix
     n1Coeff = np.zeros(N, P)
     for i in range(N):
-        n1Coeff[i,:] = vals2[(i-1)*P,i*P-1]
-    sumCause = np.sum(np.abs(n1Coeff),axis=1)
-    sumCause[sumCause <th] = 0
+        n1Coeff[i, :] = vals2[(i - 1) * P, i * P - 1]
+    sumCause = np.sum(np.abs(n1Coeff), axis=1)
+    sumCause[sumCause < th] = 0
     cause = sumCause
     return cause
-
