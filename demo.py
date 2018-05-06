@@ -42,19 +42,19 @@ def main():
     L = 1  # only one lag for analysis
     cause = np.zeros((N, N))
     for i in range(N):
-        index = [i + 1] + list(range(i)) + list(range(i + 2, N))
+        index = [i] + list(range(i)) + list(range(i + 1, N))
         cause_tmp = lasso_granger(series[index, :], L, alpha)
-        print(cause_tmp.shape)
-        print("heyu")
-        cause[i, :] = cause_tmp[1:i, i: N]
+        index = list(range(1, i+1)) + [0] + list(range(i+1, N))
+        cause[i, :] = cause_tmp[index]
 
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
     ax1.spy(A)
-    ax2.spy(A)
+    ax1.set_title('Ground Truth')
+    ax2.spy(cause)
+    ax2.set_title('Inferred Causality')
     plt.show()
-    print("gg")
 
 if __name__ == '__main__':
     main()
