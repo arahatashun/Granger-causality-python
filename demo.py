@@ -59,7 +59,6 @@ def F_score(A, B):
 def main():
     # generate synthetic data set
     N = 20  # number of   print("tp",true_positive)
-    print("A",np.sum(A)) time series
     T = 100  # length of time series
     sig = 0.2
     series, A = gen_synth(N, T, sig)
