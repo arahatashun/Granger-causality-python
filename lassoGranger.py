@@ -36,7 +36,7 @@ def lasso_granger(series, P, alpha):
     # Reformatting the results into (N,P) matrix
     n1Coeff = np.zeros((N, P))
     for i in range(N):
-        n1Coeff[i, :] = vals2[i * P:(i + 1) * P]
+        n1Coeff[i, :] = vals2[i * P:(i + 1) * P].reshape(P)
 
     sumCause = np.sum(np.abs(n1Coeff), axis=1)
     sumCause[sumCause < th] = 0
