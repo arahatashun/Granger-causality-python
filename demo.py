@@ -63,6 +63,22 @@ def gen_synth_lagged(N, T, sig):
     return series, A3
 
 
+def inject_nan(A, ratio):
+    """ replace some Numpy array with nan
+
+    :param A: numpy array
+    :param ratio: ratio of nan
+    :return:
+    """
+    B = np.copy(A)
+    array_shape = B.shape
+    c = int(np.sum(array_shape) * ratio)
+    B.ravel()[np.random.choice(A.size, c, replace=False)] = np.nan
+    B.reshape(array_shape)
+    print(B)
+    return B
+
+
 def F_score(A, B):
     """ Precision Recall F1 Score
 
@@ -141,7 +157,6 @@ def test():
     score = F_score(A, cause)
     print("F score", score)
  
-
 
 if __name__ == '__main__':
     test()
