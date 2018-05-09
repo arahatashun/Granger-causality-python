@@ -155,6 +155,11 @@ def test():
     ax2.set_title('Inferred Causality')
     plt.show()
     score = F_score(A, cause)
+    plt.plot(series[0])
+    plt.plot(series[1])
+    plt.plot(series[2])
+    plt.plot(series[3])
+    plt.show()
     print("F score", score)
 
 
