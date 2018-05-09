@@ -77,7 +77,7 @@ def gen_list_iLasso(series, times):
         nan_index = np.isnan(selected)
         values = selected[~nan_index]
         time = times[~nan_index]
-        cell = np.array([np.copy(time), np.copy(values)])
+        cell = np.array([np.copy(values), np.copy(time)])
         cell_array.append(cell)
     return cell_array
 
@@ -197,8 +197,8 @@ def test2():
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
         cause[i, :] = cause_tmp[index]
     series = inject_nan(series, 0.3)
-    gen_list_iLasso(series, np.arange(series.shape[1]))
-
+    cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
+    print(cell_array)
 
 if __name__ == '__main__':
     test2()
