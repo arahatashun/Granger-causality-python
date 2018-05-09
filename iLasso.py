@@ -45,10 +45,11 @@ def ilasso(cell_list, alpha):
             # np.tile:Construct an array by repeating A the number of times given by reps.
             tij = np.repeat(ti,len(cell_list[j][1, :]))
             tSelect = np.repeat(cell_list[j][1, :],L).T
-            ySelect = np.tile(cell_list[j][0, :].T, (1, L))
+            ySelect = np.repeat(cell_list[j][0, :],L).T
             # kernel is used as window function??
             Kernel = np.exp(-(np.multiply((tij - tSelect),(tij - tSelect)) / SIG))
-            Am[i-B,((j-1)*L+1):(j*L)] = np.sum(np.multiply(ySelect,Kernel))/np.sum(Kernel)
+            Am[i-B,(j*L):(j+1)*L] = np.divide(np.sum(np.multiply(ySelect,Kernel)),np.sum(Kernel))
+            
 
     # Solving Lasso using a solver; here the 'GLMnet' package
     fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1,
