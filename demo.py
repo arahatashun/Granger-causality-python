@@ -11,6 +11,7 @@ from scipy import spatial
 from sklearn.metrics import f1_score
 from iLasso import ilasso
 
+
 def gen_synth(N, T, sig):
     """generate simulation data
 
@@ -23,7 +24,8 @@ def gen_synth(N, T, sig):
         A: Kronecker tensor product
     """
     assert N % 4 == 0, "N must be a multiple of 4"
-    K = np.array([[0.9, 0, 0, 0], [1, 0.9, 0, 0], [1, 0, 0.9, 0], [1, 0, 0, 0.9]])
+    K = np.array(
+        [[0.9, 0, 0, 0], [1, 0.9, 0, 0], [1, 0, 0.9, 0], [1, 0, 0, 0.9]])
     A = np.kron(np.eye(int(N / 4)), K)
     series = np.zeros((N, T))
     series[:, 0] = np.random.randn(N)
@@ -46,19 +48,25 @@ def gen_synth_lagged(N, T, sig):
     """
     assert N % 4 == 0, "N must be a multiple of 4"
     assert T > 4, "T must be larger than 4"
-    K1 = np.array([[0.3, 0, 0, 0], [0, 0.3, 0, 0], [0, 0, 0.3, 0], [0, 0, 0, 0.3]])
-    K2 = np.array([[0.3, 0, 0, 0], [0, 0.3, 0, 0], [0, 0, 0.3, 0], [0, 0, 0, 0.3]])
-    K3 = np.array([[0.3, 0, 0, 0], [1, 0.3, 0, 0], [1, 0, 0.3, 0], [1, 0, 0, 0.3]])
+    K1 = np.array(
+        [[0.3, 0, 0, 0], [0, 0.3, 0, 0], [0, 0, 0.3, 0], [0, 0, 0, 0.3]])
+    K2 = np.array(
+        [[0.3, 0, 0, 0], [0, 0.3, 0, 0], [0, 0, 0.3, 0], [0, 0, 0, 0.3]])
+    K3 = np.array(
+        [[0.3, 0, 0, 0], [1, 0.3, 0, 0], [1, 0, 0.3, 0], [1, 0, 0, 0.3]])
     A1 = np.kron(np.eye(int(N / 4)), K1)
     A2 = np.kron(np.eye(int(N / 4)), K2)
     A3 = np.kron(np.eye(int(N / 4)), K3)
     series = np.zeros((N, T))
     series[:, 0] = np.random.randn(N)
     series[:, 1] = A1 @ series[:, 0] + sig * np.random.randn(N)
-    series[:, 2] = A1 @ series[:, 1] + A2 @ series[:, 0] + sig * np.random.randn(N)
+    series[:, 2] = A1 @ series[:, 1] + A2 @ series[:,
+                                            0] + sig * np.random.randn(N)
     for t in range(T - 3):
-        series[:, t + 3] = A1 @ series[:, t + 2] + A2 @ series[:, t + 1] + A3 @ series[:,
-                                                                                t + 2] + sig * np.random.randn(N)
+        series[:, t + 3] = A1 @ series[:, t + 2] + A2 @ series[:,
+                                                        t + 1] + A3 @ series[:,
+                                                                      t + 2] + sig * np.random.randn(
+            N)
     return series, A3
 
 
@@ -95,7 +103,8 @@ def inject_nan(series, ratio):
     c = int((B.ravel().shape[0] * ratio))
     B.ravel()[np.random.choice(B.ravel().shape[0], c, replace=False)] = np.nan
     B.reshape(array_shape)
-    assert np.count_nonzero(np.isnan(B)) == c, "error c:" + str(c) + "nan:" + str(np.count_nonzero(~np.isnan(B)))
+    assert np.count_nonzero(np.isnan(B)) == c, "error c:" + str(
+        c) + "nan:" + str(np.count_nonzero(~np.isnan(B)))
     return B
 
 
@@ -191,16 +200,42 @@ def test2():
     # Run Lasso-Granger
     alpha = 1e-2
     L = 1  # only one lag for analysis
-    cause = np.zeros((N, N))
+    cause = np.zeros((N, N, 3))
+    series = inject_nan(series, 0.2)
     for i in range(N):
         index = [i] + list(range(i)) + list(range(i + 1, N))
-        cause_tmp = lasso_granger(series[index, :], L, alpha)
+        cell_array = gen_list_iLasso(series[index, :],
+                                     np.arange(series.shape[1]))
+        cause_tmp = ilasso(cell_array, alpha)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
-        cause[i, :] = cause_tmp[index]
-    series = inject_nan(series, 0.3)
-    cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
-    ilasso(cell_array,alpha)
-    # print(cell_array)
+        cause[i, :, :] = cause_tmp[index]
+
+    fig, axs = plt.subplots(1, 2)
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.spy(A)
+    ax1.set_title('Ground Truth')
+    ax2.spy(cause[:, :, 0], 0.2)
+    ax2.set_title('Inferred Causality')
+    plt.show()
+    fig, axs = plt.subplots(1, 2)
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.spy(A)
+    ax1.set_title('Ground Truth')
+    ax2.spy(cause[:, :, 1], 0.2)
+    ax2.set_title('Inferred Causality')
+    plt.show()
+    fig, axs = plt.subplots(1, 2)
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.spy(A)
+    ax1.set_title('Ground Truth')
+    ax2.spy(cause[:, :, 2], 0.2)
+    ax2.set_title('Inferred Causality')
+    plt.show()
+    score = F_score(A, cause[:, :, 2])
+
 
 if __name__ == '__main__':
     test2()

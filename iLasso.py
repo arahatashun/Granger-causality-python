@@ -62,3 +62,5 @@ def ilasso(cell_list, alpha):
     result = np.zeros((P,L))
     for i in range(P):
         result[i,:] = weight[i*L:(i+1)*L].T
+
+    return result
