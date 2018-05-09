@@ -49,7 +49,7 @@ def ilasso(cell_list, alpha):
             # kernel is used as window function??
             Kernel = np.exp(-(np.multiply((tij - tSelect),(tij - tSelect)) / SIG))
             Am[i-B,(j*L):(j+1)*L] = np.divide(np.sum(np.multiply(ySelect,Kernel)),np.sum(Kernel))
-            
+
 
     # Solving Lasso using a solver; here the 'GLMnet' package
     fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1,
@@ -63,5 +63,6 @@ def ilasso(cell_list, alpha):
     result = np.zeros((P,L))
     for i in range(P):
         result[i,:] = weight[i*L:(i+1)*L].T
-
+    # is this needed?
+    result = np.fliplr(result)
     return result

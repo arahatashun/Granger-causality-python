@@ -60,14 +60,12 @@ def gen_synth_lagged(N, T, sig):
     series = np.zeros((N, T))
     series[:, 0] = np.random.randn(N)
     series[:, 1] = A1 @ series[:, 0] + sig * np.random.randn(N)
-    series[:, 2] = A1 @ series[:, 1] + A2 @ series[:,
-                                            0] + sig * np.random.randn(N)
+    series[:, 2] = A1 @ series[:, 1] \
+                   + A2 @ series[:, 0] + sig * np.random.randn(N)
     for t in range(T - 3):
-        series[:, t + 3] = A1 @ series[:, t + 2] + A2 @ series[:,
-                                                        t + 1] + A3 @ series[:,
-                                                                      t + 2] + sig * np.random.randn(
-            N)
-    return series, A3
+        series[:, t + 3] = A1 @ series[:, t + 2] + A2 @ series[:, t + 1] \
+                           + A3 @ series[:, t] + sig * np.random.randn(N)
+    return series, [A1, A2, A3]
 
 
 def gen_list_iLasso(series, times):
@@ -195,46 +193,44 @@ def test1():
 def test2():
     N = 20
     T = 100
-    sig = 0.2
-    series, A = gen_synth_lagged(N, T, sig)
+    sig = 0.1
+    series, A_array = gen_synth_lagged(N, T, sig)
     # Run Lasso-Granger
-    alpha = 1e-2
-    L = 1  # only one lag for analysis
+    alpha = 1e-1
     cause = np.zeros((N, N, 3))
-    series = inject_nan(series, 0.2)
+    series = inject_nan(series, 0.1)
     for i in range(N):
         index = [i] + list(range(i)) + list(range(i + 1, N))
         cell_array = gen_list_iLasso(series[index, :],
                                      np.arange(series.shape[1]))
         cause_tmp = ilasso(cell_array, alpha)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
-        cause[i, :, :] = cause_tmp[index]
+        cause[i, :, :] = cause_tmp[index, :]
 
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
-    ax1.spy(A)
+    ax1.spy(A_array[0])
     ax1.set_title('Ground Truth')
-    ax2.spy(cause[:, :, 0], 0.2)
+    ax2.spy(cause[:, :, 0])
     ax2.set_title('Inferred Causality')
     plt.show()
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
-    ax1.spy(A)
+    ax1.spy(A_array[1])
     ax1.set_title('Ground Truth')
-    ax2.spy(cause[:, :, 1], 0.2)
+    ax2.spy(cause[:, :, 1])
     ax2.set_title('Inferred Causality')
     plt.show()
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
-    ax1.spy(A)
+    ax1.spy(A_array[2])
     ax1.set_title('Ground Truth')
-    ax2.spy(cause[:, :, 2], 0.2)
+    ax2.spy(cause[:, :, 2])
     ax2.set_title('Inferred Causality')
     plt.show()
-    score = F_score(A, cause[:, :, 2])
 
 
 if __name__ == '__main__':
