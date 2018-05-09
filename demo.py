@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 from scipy import spatial
 from sklearn.metrics import f1_score
-
+from iLasso import ilasso
 
 def gen_synth(N, T, sig):
     """generate simulation data
@@ -199,6 +199,7 @@ def test2():
         cause[i, :] = cause_tmp[index]
     series = inject_nan(series, 0.3)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
+    ilasso(cell_array,alpha)
     # print(cell_array)
 
 if __name__ == '__main__':
