@@ -5,15 +5,17 @@
 Code for irregular lasso Granger
 """
 import numpy as np
+import pandas as pd
 
-def iLasso(series,alpha,kernel):
+
+def iLasso(df: pd.DataFrame, alpha, kernel):
     """
     Learning teporal dependency among irregular time series ussing Lasso (or its variants)
+    NOTE:Target is one variable.
+
     M. T. Bahadori and Yan Liu, "Granger Causality Analysis in Irregular Time Series", (SDM 2012)
-    :param series:an Nx1 cell array; one cell for each time series. Each cell
-                is a 2xT matrix. First row contains the values and the
-                second row contains SORTED time stamps. The first time
-               series is the target time series which is predicted.
+    :param series: pandas DataFrame
+        index must be timestamp
     :param alpha:The regularization parameter in Lasso
     :param kernel:Selects the kernel. Default is Gaussian. Available options
                 are Sinc (kernel = Sinc) and Inverse distance (kernel = Dist).
@@ -21,8 +23,10 @@ def iLasso(series,alpha,kernel):
     """
 
     # Parameters
-    L = 50 #Length of studied lag
-    Dt = 0.5 #Delta t
-    SIG = 2 #Kernel parameter. Here Gaussian Kernel Bandwidth
+    L = 50  # Length of studied lag
+    Dt = 0.5  # Delta t
+    SIG = 2  # Kernel parameter. Here Gaussian Kernel Bandwidth
 
-    B = np.sum(series)
+    #Limit the df to the first L *DT
+    df_limited =
+    Begin = np.sum(df_limited.index < L * DT) # number of elements of 1st variable

@@ -156,7 +156,7 @@ def test():
     plt.show()
     score = F_score(A, cause)
     print("F score", score)
- 
+
 
 if __name__ == '__main__':
     test()
