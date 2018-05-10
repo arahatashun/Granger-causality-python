@@ -43,9 +43,9 @@ def ilasso(cell_list, alpha):
                        (cell_list[0][1, i] - Dt)+Dt, Dt)
         for j in range(P):
             # np.tile:Construct an array by repeating A the number of times given by reps.
-            tij = np.repeat(ti,len(cell_list[j][1, :]))
-            tSelect = np.repeat(cell_list[j][1, :],L).T
-            ySelect = np.repeat(cell_list[j][0, :],L).T
+            tij = np.broadcast_to(ti, (len(cell_list[j][1,:]), ti.size))
+            tSelect = np.broadcast_to(cell_list[j][1, :], (L, cell_list[j][1, :].size)).T
+            ySelect = np.broadcast_to(cell_list[j][0, :], (L, cell_list[j][0, :].size)).T
             # kernel is used as window function??
             Kernel = np.exp(-(np.multiply((tij - tSelect),(tij - tSelect)) / SIG))
             Am[i-B,(j*L):(j+1)*L] = np.divide(np.sum(np.multiply(ySelect,Kernel)),np.sum(Kernel))

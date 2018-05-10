@@ -192,7 +192,7 @@ def test1():
 
 def test2():
     N = 20
-    T = 100
+    T = 1000
     sig = 0.1
     series, A_array = gen_synth_lagged(N, T, sig)
     # Run Lasso-Granger
@@ -212,23 +212,24 @@ def test2():
     ax2 = axs[1]
     ax1.spy(A_array[0])
     ax1.set_title('Ground Truth')
-    ax2.spy(cause[:, :, 0])
+    ax1.matshow(A_array[0], cmap=plt.cm.Blues)
+    ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
     plt.show()
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
-    ax1.spy(A_array[1])
+    ax1.matshow(A_array[1], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
-    ax2.spy(cause[:, :, 1])
+    ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
     plt.show()
     fig, axs = plt.subplots(1, 2)
     ax1 = axs[0]
     ax2 = axs[1]
-    ax1.spy(A_array[2])
+    ax1.matshow(A_array[2], cmap=plt.cm.Blues)
+    ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
-    ax2.spy(cause[:, :, 2])
     ax2.set_title('Inferred Causality')
     plt.show()
 
