@@ -26,7 +26,7 @@ def ilasso(cell_list, alpha):
     L = 3  # Length of studied lag
     # Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
     Dt = 1  # Delta t
-    SIG = 2  # Kernel parameter. Here Gaussian Kernel Bandwidth
+    SIG = 1 # Kernel parameter. Here Gaussian Kernel Bandwidth
     # index of first time which is larger than L*Dt
     B = np.argmax(cell_list[0][1, :] > L * Dt)
     # number of index of time of explained variable
@@ -36,8 +36,7 @@ def ilasso(cell_list, alpha):
 
     # Build the matrix elements
     Am = np.zeros((N1 - B, P * L))  # explanatory variables
-    bm = np.copy(cell_list[0][0, B:N1])
-    assert bm.shape[0] == N1 - B, "bm dimension mismatch"
+    bm = cell_list[0][0, B:N1]
     # for loop for stored time stamp
     for i in range(B, N1):
         ti = np.arange((cell_list[0][1, i] - L * Dt),
@@ -50,7 +49,7 @@ def ilasso(cell_list, alpha):
             ySelect = np.broadcast_to(cell_list[j][0, :], (L, cell_list[j][0, :].size)).T
             # kernel is used as window function??
             Kernel = np.exp(-(np.multiply((tij - tSelect),(tij - tSelect)) / SIG))
-            Am[i-B,(j*L):(j+1)*L] = np.divide(np.sum(np.multiply(ySelect,Kernel)),np.sum(Kernel))
+            Am[i-B,(j*L):(j+1)*L] = np.divide(np.sum(np.multiply(ySelect,Kernel),axis = 0),np.sum(Kernel))
 
 
     # Solving Lasso using a solver; here the 'GLMnet' package
