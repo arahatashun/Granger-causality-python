@@ -19,7 +19,8 @@ def ilasso(cell_list, alpha):
     First row contains the values and the second row contains SORTED time stamps.
     The first time series is the target time series which is predicted.
     :param alpha:The regularization parameter in Lasso
-    :return:
+    :return (tuple) tuple containing:
+        result: The NxL coefficient matrix.
     """
     # Parameters
     L = 3  # Length of studied lag
@@ -37,12 +38,13 @@ def ilasso(cell_list, alpha):
     Am = np.zeros((N1 - B, P * L))  # explanatory variables
     bm = np.copy(cell_list[0][0, B:N1])
     assert bm.shape[0] == N1 - B, "bm dimension mismatch"
-    # Building the design matrix
+    # for loop for stored time stamp
     for i in range(B, N1):
         ti = np.arange((cell_list[0][1, i] - L * Dt),
                        (cell_list[0][1, i] - Dt)+Dt, Dt)
+        #for loop for features
         for j in range(P):
-            # np.tile:Construct an array by repeating A the number of times given by reps.
+            assert len(ti) == L, "length does not match"
             tij = np.broadcast_to(ti, (len(cell_list[j][1,:]), ti.size))
             tSelect = np.broadcast_to(cell_list[j][1, :], (L, cell_list[j][1, :].size)).T
             ySelect = np.broadcast_to(cell_list[j][0, :], (L, cell_list[j][0, :].size)).T

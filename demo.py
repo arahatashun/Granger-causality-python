@@ -18,7 +18,7 @@ def gen_synth(N, T, sig):
     :param N: number of time series (a multiple of 4)
     :param T: length of the time series
     :param sig: variance of the noise process
-    :return:(tuple): tuple containing:
+    :return(tuple): tuple containing:
 
         series: times series data
         A: Kronecker tensor product
