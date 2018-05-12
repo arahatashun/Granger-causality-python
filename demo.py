@@ -10,7 +10,7 @@ from lassoGranger import lasso_granger
 from scipy import spatial
 from sklearn.metrics import f1_score
 from iLasso import ilasso
-
+from irregular_lasso import irregular_lasso
 
 def gen_synth(N, T, sig):
     """generate simulation data
@@ -192,7 +192,50 @@ def test1():
 
 def test2():
     N = 20
-    T = 100
+    T = 1000
+    sig = 0.1
+    series, A_array = gen_synth_lagged(N, T, sig)
+    # Run Lasso-Granger
+    alpha = 1e-2
+    cause = np.zeros((N, N, 3))
+    series = inject_nan(series, 0.1)
+    cell_array = gen_list_iLasso(series,np.arange(series.shape[1]))
+    for i in range(N):
+        order = [i] + list(range(i)) + list(range(i + 1, N))
+        new_cell = [ cell_array[i] for i in order]
+        cause_tmp = irregular_lasso(new_cell, alpha)
+        index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
+        cause[i, :, :] = cause_tmp[index, :]
+
+    fig, axs = plt.subplots(1, 2)
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.spy(A_array[0])
+    ax1.set_title('Ground Truth')
+    ax1.matshow(A_array[0], cmap=plt.cm.Blues)
+    ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
+    ax2.set_title('Inferred Causality')
+    plt.show()
+    fig, axs = plt.subplots(1, 2)
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.matshow(A_array[1], cmap=plt.cm.Blues)
+    ax1.set_title('Ground Truth')
+    ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
+    ax2.set_title('Inferred Causality')
+    plt.show()
+    fig, axs = plt.subplots(1, 2)
+    ax1 = axs[0]
+    ax2 = axs[1]
+    ax1.matshow(A_array[2], cmap=plt.cm.Blues)
+    ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
+    ax1.set_title('Ground Truth')
+    ax2.set_title('Inferred Causality')
+    plt.show()
+
+def test3():
+    N = 20
+    T = 1000
     sig = 0.1
     series, A_array = gen_synth_lagged(N, T, sig)
     # Run Lasso-Granger
@@ -233,6 +276,5 @@ def test2():
     ax2.set_title('Inferred Causality')
     plt.show()
 
-
 if __name__ == '__main__':
-    test2()
+    test3()
