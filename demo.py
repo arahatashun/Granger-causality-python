@@ -190,6 +190,7 @@ def test1():
     print("F score", score)
 
 
+
 def test2():
     N = 20
     T = 1000
@@ -207,26 +208,22 @@ def test2():
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
         cause[i, :, :] = cause_tmp[index, :]
 
-    fig, axs = plt.subplots(1, 2)
-    ax1 = axs[0]
-    ax2 = axs[1]
+    fig, axs = plt.subplots(3, 2)
+    ax1 = axs[0,0]
+    ax2 = axs[0,1]
     ax1.spy(A_array[0])
     ax1.set_title('Ground Truth')
     ax1.matshow(A_array[0], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    plt.show()
-    fig, axs = plt.subplots(1, 2)
-    ax1 = axs[0]
-    ax2 = axs[1]
+    ax1 = axs[1,0]
+    ax2 = axs[1,1]
     ax1.matshow(A_array[1], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    plt.show()
-    fig, axs = plt.subplots(1, 2)
-    ax1 = axs[0]
-    ax2 = axs[1]
+    ax1 = axs[2,0]
+    ax2 = axs[2,1]
     ax1.matshow(A_array[2], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
@@ -250,26 +247,22 @@ def test3():
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
         cause[i, :, :] = cause_tmp[index, :]
 
-    fig, axs = plt.subplots(1, 2)
-    ax1 = axs[0]
-    ax2 = axs[1]
+    fig, axs = plt.subplots(3, 2)
+    ax1 = axs[0,0]
+    ax2 = axs[0,1]
     ax1.spy(A_array[0])
     ax1.set_title('Ground Truth')
     ax1.matshow(A_array[0], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    plt.show()
-    fig, axs = plt.subplots(1, 2)
-    ax1 = axs[0]
-    ax2 = axs[1]
+    ax1 = axs[1,0]
+    ax2 = axs[1,1]
     ax1.matshow(A_array[1], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    plt.show()
-    fig, axs = plt.subplots(1, 2)
-    ax1 = axs[0]
-    ax2 = axs[1]
+    ax1 = axs[2,0]
+    ax2 = axs[2,1]
     ax1.matshow(A_array[2], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
