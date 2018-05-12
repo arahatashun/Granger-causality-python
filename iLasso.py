@@ -67,10 +67,9 @@ def ilasso(cell_list, alpha):
     BIC = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
         weight == 0) / 2
     AIC = LA.norm(Am @ weight - bm) ** 2 - 2 * np.sum(weight == 0) / 2
-    print(BIC, AIC)
     # Reformatting the output
     result = np.zeros((P, L))
     for i in range(P):
         result[i, :] = weight[i * L:(i + 1) * L].ravel()
-    # is this needed?
+
     return result
