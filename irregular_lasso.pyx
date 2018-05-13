@@ -29,6 +29,8 @@ def irregular_lasso(cell_list, double alpha):
     :param alpha:The regularization parameter in Lasso
     :return (tuple) tuple containing:
         result: The NxL coefficient matrix.
+        AIC:
+        BIC:
     """
     # Parameters
     cdef int L = 3  # Length of studied lag
@@ -78,4 +80,4 @@ def irregular_lasso(cell_list, double alpha):
     for i in range(P):
         result[i, :] = weight[i * L:(i + 1) * L].ravel()
 
-    return result
+    return result, AIC, BIC
