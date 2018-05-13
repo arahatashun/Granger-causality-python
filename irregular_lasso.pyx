@@ -4,9 +4,6 @@
 Code for irregular lasso Granger
 implemented in Cython
 
-Example:
-    import pyximport; pyximport.install()
-    from irregular_lasso import irregular_lasso
 """
 import numpy as np
 cimport numpy as np
@@ -20,7 +17,7 @@ from numpy import linalg as LA
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
 
-def irregular_lasso(cell_list, alpha):
+def irregular_lasso(cell_list, double alpha):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
     NOTE:Target is one variable.

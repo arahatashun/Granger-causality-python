@@ -12,6 +12,7 @@ from sklearn.metrics import f1_score
 from iLasso import ilasso
 from irregular_lasso import irregular_lasso
 import time
+from runiLasso import solve_loop
 
 def gen_synth(N, T, sig):
     """generate simulation data
@@ -199,16 +200,10 @@ def test2():
     series, A_array = gen_synth_lagged(N, T, sig)
     # Run Lasso-Granger
     alpha = 1e-2
-    cause = np.zeros((N, N, 3))
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series,np.arange(series.shape[1]))
     start = time.time()
-    for i in range(N):
-        order = [i] + list(range(i)) + list(range(i + 1, N))
-        new_cell = [ cell_array[i] for i in order]
-        cause_tmp = irregular_lasso(new_cell, alpha)
-        index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
-        cause[i, :, :] = cause_tmp[index, :]
+    cause = solve_loop(cell_array, N, alpha)
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     fig, axs = plt.subplots(3, 2)
@@ -231,8 +226,7 @@ def test2():
     ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2.set_title('Inferred Causality')
-    #plt.show()
-
+    plt.show()
 
 def test3():
     N = 20
@@ -273,7 +267,8 @@ def test3():
     ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2.set_title('Inferred Causality')
-    #plt.show()
+    plt.show()
+
 
 if __name__ == '__main__':
     test2()

@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 # Author: Shun Arahata
 """
-Code for run irregular lasso parallelly
+Code for run irregular lasso parallel processing
 """
 import numpy as np
 from irregular_lasso import irregular_lasso
@@ -10,6 +10,7 @@ from multiprocessing import Pool
 
 
 def solve_loop(cell_array, N, alpha):
+    """solve irrgegular lasso in parallel"""
     cause = np.zeros((N, N, 3))
     argu_for_process = []
     for i in range(N):
@@ -30,4 +31,5 @@ def process_worker(new_cell, i, N, alpha):
 
 
 def wrap_worker(arg):
+    """wrapper function"""
     return process_worker(*arg)
