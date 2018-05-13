@@ -14,6 +14,7 @@ from irregular_lasso import irregular_lasso
 import time
 from runiLasso import solve_loop
 
+
 def gen_synth(N, T, sig):
     """generate simulation data
 
@@ -192,7 +193,6 @@ def test1():
     print("F score", score)
 
 
-
 def test2():
     N = 20
     T = 1000
@@ -201,32 +201,33 @@ def test2():
     # Run Lasso-Granger
     alpha = 1e-2
     series = inject_nan(series, 0.1)
-    cell_array = gen_list_iLasso(series,np.arange(series.shape[1]))
+    cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
     start = time.time()
-    cause = solve_loop(cell_array, N, alpha)
+    cause = solve_loop(cell_array, alpha, 3)
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     fig, axs = plt.subplots(3, 2)
-    ax1 = axs[0,0]
-    ax2 = axs[0,1]
+    ax1 = axs[0, 0]
+    ax2 = axs[0, 1]
     ax1.spy(A_array[0])
     ax1.set_title('Ground Truth')
     ax1.matshow(A_array[0], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    ax1 = axs[1,0]
-    ax2 = axs[1,1]
+    ax1 = axs[1, 0]
+    ax2 = axs[1, 1]
     ax1.matshow(A_array[1], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    ax1 = axs[2,0]
-    ax2 = axs[2,1]
+    ax1 = axs[2, 0]
+    ax2 = axs[2, 1]
     ax1.matshow(A_array[2], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2.set_title('Inferred Causality')
     plt.show()
+
 
 def test3():
     N = 20
@@ -237,32 +238,32 @@ def test3():
     alpha = 1e-2
     cause = np.zeros((N, N, 3))
     series = inject_nan(series, 0.1)
-    cell_array = gen_list_iLasso(series,np.arange(series.shape[1]))
+    cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
     start = time.time()
     for i in range(N):
         order = [i] + list(range(i)) + list(range(i + 1, N))
-        new_cell = [ cell_array[i] for i in order]
+        new_cell = [cell_array[i] for i in order]
         cause_tmp = ilasso(new_cell, alpha)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
         cause[i, :, :] = cause_tmp[index, :]
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     fig, axs = plt.subplots(3, 2)
-    ax1 = axs[0,0]
-    ax2 = axs[0,1]
+    ax1 = axs[0, 0]
+    ax2 = axs[0, 1]
     ax1.spy(A_array[0])
     ax1.set_title('Ground Truth')
     ax1.matshow(A_array[0], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    ax1 = axs[1,0]
-    ax2 = axs[1,1]
+    ax1 = axs[1, 0]
+    ax2 = axs[1, 1]
     ax1.matshow(A_array[1], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
-    ax1 = axs[2,0]
-    ax2 = axs[2,1]
+    ax1 = axs[2, 0]
+    ax2 = axs[2, 1]
     ax1.matshow(A_array[2], cmap=plt.cm.Blues)
     ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
@@ -272,4 +273,3 @@ def test3():
 
 if __name__ == '__main__':
     test2()
-    test3()
