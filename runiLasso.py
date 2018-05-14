@@ -7,6 +7,7 @@ Code for run irregular lasso parallel processing
 import numpy as np
 from irregular_lasso import irregular_lasso
 from multiprocessing import Pool
+import sys
 
 
 def solve_loop(cell_array, alpha,lag_len):
@@ -27,16 +28,22 @@ def solve_loop(cell_array, alpha,lag_len):
         argument_for_process.append(
             (new_cell, i, total_features, alpha, lag_len))
     pool = Pool()
-    output = pool.map(wrap_worker, argument_for_process)
+    # output = pool.map(wrap_worker, argument_for_process)
+    outputs = []
+    for num_of_done, output in enumerate(pool.imap_unordered(wrap_worker, argument_for_process)):
+        sys.stderr.write('\rProgress {0:%}'.format(num_of_done /total_features))
+        outputs.append(output)
+
     for i in range(total_features):
-        cause[i, :, :] = output[i][0]
+        j = outputs[i][3]
+        cause[j, :, :] = outputs[j][0]
     return cause
 
 
 def process_worker(new_cell, i, n, alpha, lag_len):
     cause_tmp, aic, bic = irregular_lasso(new_cell, alpha, lag_len)
     index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
-    return cause_tmp[index, :], aic, bic
+    return cause_tmp[index, :], aic, bic, i
 
 
 def wrap_worker(arg):
