@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 from scipy import spatial
 from sklearn.metrics import f1_score
-from iLasso import ilasso
+from i_lasso import ilasso
 from irregular_lasso import irregular_lasso
 import time
-from runiLasso import solve_loop
+from run_ilasso import solve_loop
 
 
 def gen_synth(N, T, sig):
