@@ -7,8 +7,7 @@ Code for run irregular lasso parallel processing
 import numpy as np
 from irregular_lasso import irregular_lasso
 from multiprocessing import Pool
-import sys
-
+from tqdm import tqdm
 
 def solve_loop(cell_array, alpha,lag_len):
     """solve irregular lasso in parallel
@@ -30,10 +29,11 @@ def solve_loop(cell_array, alpha,lag_len):
     pool = Pool()
     # output = pool.map(wrap_worker, argument_for_process)
     outputs = []
+    pbar = tqdm(total=total_features)
     for num_of_done, output in enumerate(pool.imap_unordered(wrap_worker, argument_for_process)):
-        sys.stderr.write('\rProgress {0:%}'.format(num_of_done /total_features))
+        pbar.update()
         outputs.append(output)
-
+    pbar.close()
     for i in range(total_features):
         j = outputs[i][3]
         cause[j, :, :] = outputs[j][0]
