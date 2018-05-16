@@ -16,6 +16,7 @@ import time
 from run_ilasso import solve_loop
 from i_lasso import ilasso
 from irregular_lasso import irregular_lasso
+import pickle
 
 def gen_synth(N, T, sig):
     """generate simulation data
@@ -91,6 +92,7 @@ def gen_list_iLasso(series, times):
         cell = np.array([np.copy(values).T, np.copy(time).T])
         cell_array.append(cell)
         assert cell.shape[0] == 2, "cell dimension error"
+
     return cell_array
 
 
@@ -206,7 +208,8 @@ def test2():
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
     start = time.time()
     print(len(cell_array))
-    cause = solve_loop(cell_array, alpha, 0.1, 3)
+    print(cell_array[0].shape)
+    cause = solve_loop(cell_array, alpha, 0.1, 3, 1)
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     fig, axs = plt.subplots(3, 2)
@@ -246,7 +249,7 @@ def test3():
     for i in range(N):
         order = [i] + list(range(i)) + list(range(i + 1, N))
         new_cell = [cell_array[i] for i in order]
-        cause_tmp,_,_ = ilasso(new_cell, alpha, 0.1, 3)
+        cause_tmp,_,_ = ilasso(new_cell, alpha, 0.1, 3, 1)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
         cause[i, :, :] = cause_tmp[index, :]
     elapsed_time = time.time() - start

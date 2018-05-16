@@ -9,8 +9,8 @@ from run_ilasso import solve_loop
 
 cell = np.load('data.npy')
 alpha = 1e-2
-cause = solve_loop(cell, alpha, 0.1, 3)
-
+cause = solve_loop(cell, alpha, 0.1, 3, 1)
+print(cell.shape)
 np.savetxt('result3.csv', cause[:, :, 0], delimiter=',')
 np.savetxt('result2.csv', cause[:, :, 1], delimiter=',')
 np.savetxt('result1.csv', cause[:, :, 2], delimiter=',')
