@@ -10,7 +10,7 @@ from glmnet import glmnet
 from numpy import linalg as LA
 
 
-def ilasso(cell_list, alpha, sigma, lag_len):
+def ilasso(cell_list, alpha, sigma, lag_len, dt):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
     NOTE:Target is one variable.
@@ -22,13 +22,13 @@ def ilasso(cell_list, alpha, sigma, lag_len):
     :param alpha:The regularization parameter in Lasso
     :param sigma:Kernel parameter. Here Gaussian Kernel Bandwidth
     :param lag_len: Length of studied lag
+    :param dt:Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
     :return (tuple) tuple containing:
         result: The NxL coefficient matrix.
     """
-    # Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
-    Dt = 1  # Delta t
-    # index of last time which is less than lag_len*Dt　- 1
-    B = np.argmax(cell_list[0][1, :] > lag_len * Dt)
+
+    # index of last time which is less than lag_len*dt　- 1
+    B = np.argmax(cell_list[0][1, :] > lag_len * dt)
     assert B > 0, " lag_len DT error"
     # number of index of time of explained variable
     N1 = cell_list[0][1].shape[0]
@@ -40,8 +40,8 @@ def ilasso(cell_list, alpha, sigma, lag_len):
     bm = cell_list[0][0, B:N1 + 1].reshape((N1 - B, 1))
     # for loop for stored time stamp
     for i in range(B, N1):
-        ti = np.arange((cell_list[0][1, i] - lag_len * Dt),
-                       (cell_list[0][1, i] - Dt) + Dt, Dt)
+        ti = np.arange((cell_list[0][1, i] - lag_len * dt),
+                       (cell_list[0][1, i] - dt) + dt, dt)
         # for loop for features
         for j in range(P):
             assert len(ti) == lag_len, "length does not match"
