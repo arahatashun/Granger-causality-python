@@ -10,7 +10,7 @@ from glmnet import glmnet
 from numpy import linalg as LA
 
 
-def ilasso(cell_list, alpha, sigma=0.1, lag_len=3):
+def ilasso(cell_list, alpha, sigma, lag_len):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
     NOTE:Target is one variable.
@@ -27,7 +27,6 @@ def ilasso(cell_list, alpha, sigma=0.1, lag_len=3):
     """
     # Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
     Dt = 1  # Delta t
-    sigma = 0.1  # Kernel parameter. Here Gaussian Kernel Bandwidth
     # index of last time which is less than lag_len*Dt　- 1
     B = np.argmax(cell_list[0][1, :] > lag_len * Dt)
     assert B > 0, " lag_len DT error"
@@ -64,12 +63,12 @@ def ilasso(cell_list, alpha, sigma=0.1, lag_len=3):
     weight = fit['beta']  # array of coefficient
     # Computing the BIC and AIC metrics
     # TODO: be implemented
-    BIC = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
+    bic = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
         weight == 0) / 2
-    AIC = LA.norm(Am @ weight - bm) ** 2 - 2 * np.sum(weight == 0) / 2
+    aic = LA.norm(Am @ weight - bm) ** 2 - 2 * np.sum(weight == 0) / 2
     # Reformatting the output
     result = np.zeros((P, lag_len))
     for i in range(P):
         result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
 
-    return result
+    return result, aic, bic

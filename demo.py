@@ -4,16 +4,18 @@
 """
 Code for demonstration
 """
+
+import sys
+sys.path.append('./granger_python')
 import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 from scipy import spatial
 from sklearn.metrics import f1_score
-from i_lasso import ilasso
-from irregular_lasso import irregular_lasso
 import time
 from run_ilasso import solve_loop
-
+from i_lasso import ilasso
+from irregular_lasso import irregular_lasso
 
 def gen_synth(N, T, sig):
     """generate simulation data
@@ -203,7 +205,8 @@ def test2():
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
     start = time.time()
-    cause = solve_loop(cell_array, alpha, 3)
+    print(len(cell_array))
+    cause = solve_loop(cell_array, alpha, 0.1, 3)
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
     fig, axs = plt.subplots(3, 2)
@@ -243,7 +246,7 @@ def test3():
     for i in range(N):
         order = [i] + list(range(i)) + list(range(i + 1, N))
         new_cell = [cell_array[i] for i in order]
-        cause_tmp = ilasso(new_cell, alpha)
+        cause_tmp,_,_ = ilasso(new_cell, alpha, 0.1, 3)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
         cause[i, :, :] = cause_tmp[index, :]
     elapsed_time = time.time() - start

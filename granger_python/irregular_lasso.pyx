@@ -17,7 +17,7 @@ from numpy import linalg as LA
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
 
-def irregular_lasso(cell_list, double alpha, int lag_len):
+def irregular_lasso(cell_list, double alpha, double sigma, int lag_len):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
     NOTE:Target is one variable.
@@ -27,16 +27,15 @@ def irregular_lasso(cell_list, double alpha, int lag_len):
     First row contains the values and the second row contains SORTED time stamps.
     The first time series is the target time series which is predicted.
     :param alpha:The regularization parameter in Lasso
+    :param sigma:kernel parameter. Here Gaussian kernel Bandwidth
     :param lag_len:Length of studied lag
     :return (tuple) tuple containing:
         result: The NxL coefficient matrix.
         AIC:
         BIC:
     """
-    # Parameters
-    # Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
-    cdef double dt = 1  # Delta t
-    cdef double sigma = 0.1  # kernel parameter. Here Gaussian kernel Bandwidth
+    # the  average  length  of  the  sampling  intervals for the target time series
+    cdef double dt = 1
     # index of last time which is less than lag_len*dt - 1
     cdef int begin = np.argmax(cell_list[0][1, :] > lag_len * dt)
     # assert begin > 0, " lag_len dT error"
