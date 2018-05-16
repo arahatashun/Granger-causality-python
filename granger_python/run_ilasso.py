@@ -8,7 +8,7 @@ import numpy as np
 from irregular_lasso import irregular_lasso
 from multiprocessing import Pool
 from tqdm import tqdm
-from i_lasso import ilasso
+from ilasso import ilasso
 
 def solve_loop(cell_array, alpha, sigma, lag_len, dt):
     """solve irregular lasso in parallel
@@ -25,6 +25,9 @@ def solve_loop(cell_array, alpha, sigma, lag_len, dt):
     cause = np.zeros((total_features, total_features, lag_len))
     argument_for_process = []
     for i in range(total_features):
+        num_of_element = len(cell_array[i][0])
+        avg_dt = (cell_array[i][1][-1] - cell_array[i][1][0])/num_of_element
+        print(num_of_element)
         order = [i] + list(range(i)) + list(range(i + 1, total_features))
         new_cell = [cell_array[i] for i in order]
         argument_for_process.append(

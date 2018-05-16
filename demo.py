@@ -14,7 +14,7 @@ from scipy import spatial
 from sklearn.metrics import f1_score
 import time
 from run_ilasso import solve_loop
-from i_lasso import ilasso
+from ilasso import ilasso
 from irregular_lasso import irregular_lasso
 import pickle
 
