@@ -29,7 +29,7 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
 
     # index of last time which is less than lag_len*dt　- 1
     B = np.argmax(cell_list[0][1, :] > lag_len * dt)
-    assert B > 0, " lag_len DT error"
+    assert B => 0, " lag_len DT error"
     # number of index of time of explained variable
     N1 = cell_list[0][1].shape[0]
     # number of features
