@@ -37,10 +37,15 @@ def solve_loop(cell_array, alpha, lag_len):
         pbar.update()
         outputs.append(output)
     pbar.close()
+    aic = []
+    bic = []
     for i in range(total_features):
         j = outputs[i][3]
         cause[j, :, :] = outputs[i][0]
-    return cause
+    aic = np.sum(output[:][1])/total_features
+    bic = np.sum(output[:][2])/total_features
+    print("AIC:",aic,"BIC",bicS)
+    return cause,aic,bic
 
 
 def process_worker(new_cell, i, n, alpha, sigma, lag_len, dt):
