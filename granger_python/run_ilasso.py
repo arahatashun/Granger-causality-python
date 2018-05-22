@@ -37,14 +37,18 @@ def solve_loop(cell_array, alpha, lag_len):
         pbar.update()
         outputs.append(output)
     pbar.close()
-    aic = []
-    bic = []
+    aic = np.zeros(total_features)
+    bic = np.zeros(total_features)
     for i in range(total_features):
         j = outputs[i][3]
         cause[j, :, :] = outputs[i][0]
-    aic = np.sum(output[:][1])/total_features
-    bic = np.sum(output[:][2])/total_features
-    print("AIC:",aic,"BIC",bicS)
+        aic[j] = outputs[i][1]
+        bic[j] = outputs[i][2]
+    print(aic)
+    print(bic)
+    aic = np.sum(aic, axis = None)/total_features
+    bic = np.sum(bic, axis = None)/total_features
+    print("AIC:",aic,"BIC",bic)
     return cause,aic,bic
 
 
