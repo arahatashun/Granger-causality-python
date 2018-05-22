@@ -26,13 +26,14 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
     :return (tuple) tuple containing:
         result: The NxL coefficient matrix.
     """
-
+    """
+    for test
+    sigma = 0.1
+    alpha = 1e-2
+    """
     # index of last time which is less than lag_len*dt　- 1
     B = np.argmax(cell_list[0][1, :] > lag_len * dt)
     assert B >= 0, " lag_len DT error"
-    dt =1
-    sigma = 0.1
-    alpha = 1e-2
     # number of index of time of explained variable
     N1 = cell_list[0][1].shape[0]
     # number of features
@@ -56,9 +57,11 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
             """
             # reduce kernel length in order to reduce complexity of calculation
             # kernel is used as window function
+            # time_match is a cell_list[time_match][1, :] nearest to tij
+            time_match = np.argmin(np.abs(cell_list[j][1,:]-cell_list[0][1, i]))
             kernel_length = 50 # half of kernel length
-            start = i - kernel_length if i-kernel_length > 0 else 0
-            end = i + kernel_length if i + kernel_length < len(cell_list[j][1, :])-1 else len(cell_list[j][1, :])
+            start = time_match - kernel_length if time_match-kernel_length > 0 else 0
+            end = time_match + kernel_length if time_match + kernel_length < len(cell_list[j][1, :])-1 else len(cell_list[j][1, :])
             tij = np.broadcast_to(ti, (len(cell_list[j][1, start:end]), ti.size))
             tSelect = np.broadcast_to(cell_list[j][1, start:end],
                                       (lag_len, cell_list[j][1, start:end].size)).T
