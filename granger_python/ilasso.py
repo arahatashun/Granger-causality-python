@@ -30,11 +30,13 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
     # index of last time which is less than lag_len*dt　- 1
     B = np.argmax(cell_list[0][1, :] > lag_len * dt)
     assert B >= 0, " lag_len DT error"
+    dt =1
+    sigma = 0.1
+    alpha = 1e-2
     # number of index of time of explained variable
     N1 = cell_list[0][1].shape[0]
     # number of features
     P = len(cell_list)
-
     # Build the matrix elements
     Am = np.zeros((N1 - B, P * lag_len))  # explanatory variables
     bm = cell_list[0][0, B:N1 + 1].reshape((N1 - B, 1))
@@ -45,12 +47,23 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
         # for loop for features
         for j in range(P):
             assert len(ti) == lag_len, "length does not match"
+            """
             tij = np.broadcast_to(ti, (len(cell_list[j][1, :]), ti.size))
             tSelect = np.broadcast_to(cell_list[j][1, :],
                                       (lag_len, cell_list[j][1, :].size)).T
             ySelect = np.broadcast_to(cell_list[j][0, :],
                                       (lag_len, cell_list[j][0, :].size)).T
-            # kernel is used as window function??
+            """
+            # reduce kernel length in order to reduce complexity of calculation
+            # kernel is used as window function
+            kernel_length = 50 # half of kernel length
+            start = i - kernel_length if i-kernel_length > 0 else 0
+            end = i + kernel_length if i + kernel_length < len(cell_list[j][1, :])-1 else len(cell_list[j][1, :])
+            tij = np.broadcast_to(ti, (len(cell_list[j][1, start:end]), ti.size))
+            tSelect = np.broadcast_to(cell_list[j][1, start:end],
+                                      (lag_len, cell_list[j][1, start:end].size)).T
+            ySelect = np.broadcast_to(cell_list[j][0, start:end],
+                                      (lag_len, cell_list[j][0, start:end].size)).T
             Kernel = np.exp(
                 -(np.multiply((tij - tSelect), (tij - tSelect)) / sigma))
             Am[i - B, (j * lag_len):(j + 1) * lag_len] = np.divide(
