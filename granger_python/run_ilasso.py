@@ -44,8 +44,6 @@ def solve_loop(cell_array, alpha, lag_len):
         cause[j, :, :] = outputs[i][0]
         aic[j] = outputs[i][1]
         bic[j] = outputs[i][2]
-    print(aic)
-    print(bic)
     aic = np.sum(aic, axis = None)/total_features
     bic = np.sum(bic, axis = None)/total_features
     print("AIC:",aic,"BIC",bic)
