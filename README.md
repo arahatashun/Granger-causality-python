@@ -7,4 +7,5 @@ to python.
 [Glmnet for python](https://github.com/bbalasub1/glmnet_python)
 ```shell
 $pip install glmnet_py
+sudo apt-get install libgfortran3
 ```
