@@ -75,6 +75,7 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
                 ker_sum = np.sum(Kernel, axis=0)
                 numerator = np.sum(np.multiply(ySelect, Kernel), axis=0)
                 assert np.isfinite(numerator).all() ==1,str(numerator)
+                assert np.isfinite(ker_sum).all() ==1,str(ker_sum)
                 tmp = np.divide(numerator,ker_sum)
                 tmp[ker_sum==0] = 1
                 assert (np.isfinite(tmp)).all() == 1,str(tmp)+str(ker_sum)
