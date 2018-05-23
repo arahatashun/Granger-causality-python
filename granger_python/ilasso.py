@@ -67,12 +67,25 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
                                       (lag_len, cell_list[j][1, start:end].size)).T
             ySelect = np.broadcast_to(cell_list[j][0, start:end],
                                       (lag_len, cell_list[j][0, start:end].size)).T
-            Kernel = np.exp(
-                -(np.multiply((tij - tSelect), (tij - tSelect)) / sigma))
-            Am[i - B, (j * lag_len):(j + 1) * lag_len] = np.divide(
-                np.sum(np.multiply(ySelect, Kernel), axis=0),
-                np.sum(Kernel, axis=0))
+            exponent = -(np.multiply((tij - tSelect), (tij - tSelect)) / sigma)
+            assert np.isfinite(exponent).all() == 1, str(exponent)
+            Kernel = np.exp(exponent)
+            assert np.isfinite(Kernel).all() == 1, str(Kernel)
+            with np.errstate(divide='ignore'):
+                ker_sum = np.sum(Kernel, axis=0)
+                numerator = np.sum(np.multiply(ySelect, Kernel), axis=0)
+                assert np.isfinite(numerator).all() ==1,str(numerator)
+                tmp = np.divide(numerator,ker_sum)
+                tmp[ker_sum==0] = 1
+                assert (np.isfinite(tmp)).all() == 1,str(tmp)+str(ker_sum)
+            """
+            if np.sum(Kernel, axis=0).any() == 0:
+                print("kernel zero" + str(np.sum(Kernel, axis=0)))
+                print(tmp)
+            """
+            Am[i - B, (j * lag_len):(j + 1) * lag_len] = tmp
 
+    assert (np.isfinite(Am)).all() == True,str(Am)
     # Solving Lasso using a solver; here the 'GLMnet' package
     fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1,
                  lambdau=np.array([alpha]))
@@ -82,6 +95,11 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
     bic = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
         weight == 0) / 2
     aic = LA.norm(Am @ weight - bm) ** 2 - 2 * np.sum(weight == 0) / 2
+
+    weight_shape_before = weight.shape
+    weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
+    assert np.isnan(weight).all() == False
+
     # Reformatting the output
     result = np.zeros((P, lag_len))
     for i in range(P):
