@@ -5,7 +5,6 @@
 Code for run irregular lasso parallel processing
 """
 import numpy as np
-from irregular_lasso import irregular_lasso
 from multiprocessing import Pool
 from tqdm import tqdm
 from ilasso import ilasso
