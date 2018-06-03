@@ -9,7 +9,7 @@ import glmnet_python
 from glmnet import glmnet
 from numpy import linalg as LA
 
-
+@profile
 def ilasso(cell_list, alpha, sigma, lag_len, dt):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
@@ -43,11 +43,10 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
     bm = cell_list[0][0, B:N1 + 1].reshape((N1 - B, 1))
     # for loop for stored time stamp
     for i in range(B, N1):
-        ti = np.arange((cell_list[0][1, i] - lag_len * dt),
-                       (cell_list[0][1, i] - dt) + dt, dt)
+        ti = np.linspace((cell_list[0][1, i] - lag_len * dt),cell_list[0][1, i] - dt , num = lag_len)
         # for loop for features
         for j in range(P):
-            assert len(ti) == lag_len, "length does not match"
+            assert len(ti) == lag_len, str(len(ti))+str(lag_len)+"length does not match"
             """
             tij = np.broadcast_to(ti, (len(cell_list[j][1, :]), ti.size))
             tSelect = np.broadcast_to(cell_list[j][1, :],
@@ -58,8 +57,8 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
             # reduce kernel length in order to reduce complexity of calculation
             # kernel is used as window function
             # time_match is a cell_list[time_match][1, :] nearest to tij
-            time_match = np.argmin(np.abs(cell_list[j][1,:]-cell_list[0][1, i]))
-            kernel_length = 50 # half of kernel length
+            time_match = np.searchsorted(cell_list[j][1,:], cell_list[0][1, i])
+            kernel_length = 25 # half of kernel length
             start = time_match - kernel_length if time_match-kernel_length > 0 else 0
             end = time_match + kernel_length if time_match + kernel_length < len(cell_list[j][1, :])-1 else len(cell_list[j][1, :])
             tij = np.broadcast_to(ti, (len(cell_list[j][1, start:end]), ti.size))
@@ -68,17 +67,17 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
             ySelect = np.broadcast_to(cell_list[j][0, start:end],
                                       (lag_len, cell_list[j][0, start:end].size)).T
             exponent = -(np.multiply((tij - tSelect), (tij - tSelect)) / sigma)
-            assert np.isfinite(exponent).all() == 1, str(exponent)
+            # assert np.isfinite(exponent).all() == 1, str(exponent)
             Kernel = np.exp(exponent)
-            assert np.isfinite(Kernel).all() == 1, str(Kernel)
+            # assert np.isfinite(Kernel).all() == 1, str(Kernel)
             with np.errstate(divide='ignore'):
                 ker_sum = np.sum(Kernel, axis=0)
                 numerator = np.sum(np.multiply(ySelect, Kernel), axis=0)
-                assert np.isfinite(numerator).all() ==1,str(numerator)
-                assert np.isfinite(ker_sum).all() ==1,str(ker_sum)
+                # assert np.isfinite(numerator).all() ==1,str(numerator)
+                # assert np.isfinite(ker_sum).all() ==1,str(ker_sum)
                 tmp = np.divide(numerator,ker_sum)
                 tmp[ker_sum==0] = 1
-                assert (np.isfinite(tmp)).all() == 1,str(tmp)+str(ker_sum)
+                # assert (np.isfinite(tmp)).all() == 1,str(tmp)+str(ker_sum)
             """
             if np.sum(Kernel, axis=0).any() == 0:
                 print("kernel zero" + str(np.sum(Kernel, axis=0)))
@@ -86,7 +85,7 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
             """
             Am[i - B, (j * lag_len):(j + 1) * lag_len] = tmp
 
-    assert (np.isfinite(Am)).all() == True,str(Am)
+    # assert (np.isfinite(Am)).all() == True,str(Am)
     # Solving Lasso using a solver; here the 'GLMnet' package
     fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1,
                  lambdau=np.array([alpha]))
@@ -99,7 +98,7 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
 
     weight_shape_before = weight.shape
     weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
-    assert np.isnan(weight).all() == False
+    # assert np.isnan(weight).all() == False
 
     # Reformatting the output
     result = np.zeros((P, lag_len))

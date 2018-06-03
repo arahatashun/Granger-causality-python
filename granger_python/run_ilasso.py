@@ -29,7 +29,7 @@ def solve_loop(cell_array, alpha, lag_len):
         order = [i] + list(range(i)) + list(range(i + 1, total_features))
         new_cell = [cell_array[i] for i in order]
         argument_for_process.append(
-            (new_cell, i, total_features, alpha, sigma, lag_len, 1))
+            (new_cell, i, total_features, alpha, sigma, lag_len, avg_dt))
     pool = Pool()
     outputs = []
     pbar = tqdm(total=total_features)
@@ -59,3 +59,15 @@ def process_worker(new_cell, i, n, alpha, sigma, lag_len, dt):
 def wrap_worker(arg):
     """wrapper function"""
     return process_worker(*arg)
+
+def test_solve(cell_array, alpha, lag_len):
+    total_features = len(cell_array)
+    i = 0
+    num_of_element = len(cell_array[i][0])
+    avg_dt = (cell_array[i][1][-1] - cell_array[i][1][0]) / num_of_element
+    assert avg_dt > 0
+    sigma = avg_dt / 4  # Comparison of correlation analysis techniques for irregularly sampled time series
+    order = [i] + list(range(i)) + list(range(i + 1, total_features))
+    new_cell = [cell_array[i] for i in order]
+    ilasso(new_cell, alpha, sigma, lag_len, avg_dt)
+    return None
