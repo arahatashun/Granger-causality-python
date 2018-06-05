@@ -9,7 +9,7 @@ import glmnet_python
 from glmnet import glmnet
 from numpy import linalg as LA
 
-@profile
+# @profile
 def ilasso(cell_list, alpha, sigma, lag_len, dt):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
@@ -26,11 +26,13 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
     :return (tuple) tuple containing:
         result: The NxL coefficient matrix.
     """
-    """
-    for test
-    sigma = 0.1
-    alpha = 1e-2
-    """
+
+
+    #for test
+    # sigma = 0.1
+    # alpha = 1e-2
+    # dt = 1
+
     # index of last time which is less than lag_len*dt　- 1
     B = np.argmax(cell_list[0][1, :] > lag_len * dt)
     assert B >= 0, " lag_len DT error"
