@@ -10,7 +10,7 @@ from glmnet import glmnet
 from numpy import linalg as LA
 
 # @profile
-def ilasso(cell_list, alpha, sigma, lag_len, dt):
+def ilasso(cell_list, alpha, sigma, lag_len, dt, cv):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
     NOTE:Target is one variable.
@@ -23,6 +23,7 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
     :param sigma:Kernel parameter. Here Gaussian Kernel Bandwidth
     :param lag_len: Length of studied lag
     :param dt:Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
+    :param cv:cross validation
     :return (tuple) tuple containing:
         result: The NxL coefficient matrix.
     """
@@ -89,22 +90,44 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt):
 
     # assert (np.isfinite(Am)).all() == True,str(Am)
     # Solving Lasso using a solver; here the 'GLMnet' package
-    fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1,
+    if cv == False:
+        fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1,
                  lambdau=np.array([alpha]))
-    weight = fit['beta']  # array of coefficient
-    # Computing the BIC and AIC metrics
-    # TODO: be implemented
-    bic = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
-        weight == 0) / 2
-    aic = LA.norm(Am @ weight - bm) ** 2 - 2 * np.sum(weight == 0) / 2
+        weight = fit['beta']  # array of coefficient
+        # Computing the BIC and AIC metrics
+        bic = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
+            weight == 0) / 2
+        aic = LA.norm(Am @ weight - bm) ** 2 - 2 * np.sum(weight == 0) / 2
 
-    weight_shape_before = weight.shape
-    weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
-    # assert np.isnan(weight).all() == False
+        # weight_shape_before = weight.shape
+        # weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
+        # assert np.isnan(weight).all() == False
 
-    # Reformatting the output
-    result = np.zeros((P, lag_len))
-    for i in range(P):
-        result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
+        # Reformatting the output
+        result = np.zeros((P, lag_len))
+        for i in range(P):
+            result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
 
-    return result, aic, bic
+        return result, aic, bic
+    else :
+        last_index = int((N1 - B) * 0.7)
+        Am_train = Am[:last_index]
+        bm_train = bm[:last_index]
+        Am_test = Am[last_index:]
+        bm_test = bm[last_index:]
+        fit = glmnet(x=Am_train, y=bm_train, family='gaussian', alpha=1, lambdau=np.array([alpha]))
+        weight = fit['beta']  # array of coefficient
+        test_error = LA.norm(Am_test @ weight - bm_test) ** 2/ (N1 - B - last_index)
+        # Computing the BIC and AIC metrics
+        bic = LA.norm(Am_train @ weight - bm_train) ** 2 - np.log(N1 - B) * np.sum(weight == 0) / 2
+        aic = LA.norm(Am_train @ weight - bm_train) ** 2 - 2 * np.sum(weight == 0) / 2
+        # weight_shape_before = weight.shape
+        # weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
+        # assert np.isnan(weight).all() == False
+
+        # Reformatting the output
+        result = np.zeros((P, lag_len))
+        for i in range(P):
+            result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
+
+        return result, aic, bic, test_error
