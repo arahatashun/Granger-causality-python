@@ -25,7 +25,7 @@ def solve_loop(cell_array, alpha, lag_len,cv = False):
     for i in range(total_features):
         num_of_element = len(cell_array[i][0])
         avg_dt = (cell_array[i][1][-1] - cell_array[i][1][0])/num_of_element
-        assert avg_dt > 0
+        assert avg_dt > 0,"avg_dt" + str(avg_dt)
         sigma = avg_dt/4 # Comparison of correlation analysis techniques for irregularly sampled time series
         order = [i] + list(range(i)) + list(range(i + 1, total_features))
         new_cell = [cell_array[i] for i in order]
