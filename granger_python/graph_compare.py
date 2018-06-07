@@ -8,7 +8,7 @@ Code for compare graph structure
 import numpy as np
 
 
-def f_score(a, b, threshold=0):
+def f_score(a, b, threshold=0.01):
     """ Precision Recall F1 Score
 
     :param a: Matirx
