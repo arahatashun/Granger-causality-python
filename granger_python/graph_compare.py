@@ -15,6 +15,8 @@ def f_score(a, b, threshold=0):
     :param b: Matirx
     :return:
     """
+    a = np.copy(a)
+    b = np.copy(b)
     a[a < threshold] = 0
     a[a >= threshold] = 1
     b[b < threshold] = 0
