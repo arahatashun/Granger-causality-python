@@ -6,6 +6,8 @@ Code for compare graph structure
 """
 
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
+import matplotlib
 
 
 def f_score(a, b, threshold=0.1):
@@ -34,3 +36,30 @@ def f_score(a, b, threshold=0.1):
     diff_mat[b >= threshold] += 2
 
     return score, diff_mat
+
+
+def generate_cmap(colors):
+    """自分で定義したカラーマップを返す
+    https://qiita.com/kenmatsu4/items/fe8a2f1c34c8d5676df8
+    """
+    values = range(len(colors))
+
+    vmax = np.ceil(np.max(values))
+    color_list = []
+    for v, c in zip(values, colors):
+        color_list.append((v / vmax, c))
+    return LinearSegmentedColormap.from_list('custom_cmap', color_list)
+
+
+cm = generate_cmap(['white', 'blue', 'red', 'black'])
+
+
+def mat_make(axs: matplotlib.axes._subplots.AxesSubplot, mat) -> None:
+    """make matrix plot using color map
+
+    :param axs:
+    :param mat:
+    :return:
+    """
+    axs.matshow(mat, cmap=cm, vmin=0, vmax=3)
+    return None
