@@ -59,6 +59,5 @@ def mat_make(axs, mat):
     :param mat:
     :return:
     """
-    assert type(axs) == matplotlib.axes._subplots.AxesSubplot, "type error"
     axs.matshow(mat, cmap=cm, vmin=0, vmax=3)
     return None
