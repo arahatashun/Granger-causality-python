@@ -8,7 +8,7 @@ Code for compare graph structure
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib
-
+import matplotlib.axes
 
 def f_score(a, b, threshold=0.1):
     """ Precision Recall F1 Score
