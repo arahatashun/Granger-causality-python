@@ -50,6 +50,7 @@ def generate_cmap(colors):
         color_list.append((v / vmax, c))
     return LinearSegmentedColormap.from_list('custom_cmap', color_list)
 
+cm = generate_cmap(['white', 'blue', 'red', 'black'])
 
 def mat_make(axs, mat):
     """make matrix plot using color map
@@ -59,6 +60,5 @@ def mat_make(axs, mat):
     :return:
     """
     assert type(axs) == matplotlib.axes._subplots.AxesSubplot, "type error"
-    cm = generate_cmap(['white', 'blue', 'red', 'black'])
     axs.matshow(mat, cmap=cm, vmin=0, vmax=3)
     return None
