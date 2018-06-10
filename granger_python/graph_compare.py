@@ -54,12 +54,13 @@ def generate_cmap(colors):
 cm = generate_cmap(['white', 'blue', 'red', 'black'])
 
 
-def mat_make(axs: matplotlib.axes._subplots.AxesSubplot, mat) -> None:
+def mat_make(axs, mat):
     """make matrix plot using color map
 
     :param axs:
     :param mat:
     :return:
     """
+    assert type(axs) == matplotlib.axes._subplots.AxesSubplot, "type error"
     axs.matshow(mat, cmap=cm, vmin=0, vmax=3)
     return None
