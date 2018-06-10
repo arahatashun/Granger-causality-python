@@ -50,14 +50,10 @@ def generate_cmap(colors):
         color_list.append((v / vmax, c))
     return LinearSegmentedColormap.from_list('custom_cmap', color_list)
 
-cm = generate_cmap(['white', 'blue', 'red', 'black'])
+def get_sp_map():
+    """color map for sparse matrix
 
-def mat_make(axs, mat):
-    """make matrix plot using color map
-
-    :param axs:
-    :param mat:
     :return:
     """
-    eval('axs.matshow(mat, cmap=cm, vmin=0, vmax=3', {}, {'axs': axs,'cm':cms})
-    return None
+
+    return generate_cmap(['white', 'blue', 'red', 'black'])
