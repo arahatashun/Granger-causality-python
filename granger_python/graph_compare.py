@@ -50,10 +50,10 @@ def generate_cmap(colors):
         color_list.append((v / vmax, c))
     return LinearSegmentedColormap.from_list('custom_cmap', color_list)
 
-def get_sp_map():
+
+def get_sp_cmap():
     """color map for sparse matrix
 
     :return:
     """
-
     return generate_cmap(['white', 'blue', 'red', 'black'])
