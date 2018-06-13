@@ -10,12 +10,11 @@ sys.path.append('./granger_python')
 import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
-from scipy import spatial
-from sklearn.metrics import f1_score
 import time
 from run_ilasso import solve_loop
 from ilasso import ilasso
-from irregular_lasso import irregular_lasso
+from ilasso import ilasso
+from graph_compare import f_score
 import pickle
 
 def gen_synth(N, T, sig):
@@ -113,29 +112,6 @@ def inject_nan(series, ratio):
     return B
 
 
-def F_score(A, B):
-    """ Precision Recall F1 Score
-
-    :param A: Matirx
-    :param B: Matirx
-    :return:
-    """
-    threshold = 0.4
-    A[A < threshold] = 0
-    A[A >= threshold] = 1
-    B[B < threshold] = 0
-    B[B >= threshold] = 1
-    TP = np.zeros_like(A)
-    B_tmp = np.copy(B)
-    B_tmp[B < threshold] = -1
-    TP[B_tmp == A] = 1
-    true_positive = np.sum(TP)
-    precison = true_positive / np.sum(A)
-    recall = true_positive / np.sum(B)
-    score = 2 * precison * recall / (precison + recall)
-    return score
-
-
 def main():
     # generate synthetic data set
     N = 20  # number of   print("tp",true_positive)
@@ -162,7 +138,7 @@ def main():
     ax2.set_title('Inferred Causality')
     plt.show()
     # print("cosine distance", spatial.distance.cosine(A.flatten(), cause.flatten()))
-    score = F_score(A, cause)
+    score = f_score(A, cause)
     print("F score", score)
 
 
@@ -188,7 +164,7 @@ def test1():
     ax2.spy(cause, 0.4)
     ax2.set_title('Inferred Causality')
     plt.show()
-    score = F_score(A, cause)
+    score = f_score(A, cause)
     plt.plot(series[0])
     plt.plot(series[1])
     plt.plot(series[2])
@@ -278,4 +254,4 @@ def test3():
 
 
 if __name__ == '__main__':
-    test2()
+    main()
