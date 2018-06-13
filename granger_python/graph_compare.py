@@ -30,7 +30,7 @@ def f_score(a, b, threshold=0.1):
     true_positive = np.sum(true_positive_mat)
     precision = true_positive / np.sum(b)
     recall = true_positive / np.sum(a)
-    score = 2 * precison * recall / (precison + recall)
+    score = 2 * precision * recall / (precison + recall)
     diff_mat = np.zeros_like(a)
     diff_mat[a >= threshold] += 1
     diff_mat[b >= threshold] += 2
