@@ -28,7 +28,7 @@ def f_score(a, b, threshold=0.1):
     b_tmp[b < threshold] = -1
     true_positive_mat[b_tmp == a] = 1
     true_positive = np.sum(true_positive_mat)
-    precison = true_positive / np.sum(b)
+    precision = true_positive / np.sum(b)
     recall = true_positive / np.sum(a)
     score = 2 * precison * recall / (precison + recall)
     diff_mat = np.zeros_like(a)
