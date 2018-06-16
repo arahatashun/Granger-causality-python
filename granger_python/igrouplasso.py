@@ -99,9 +99,18 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
         k = 0.0  # l2 ridge regression coefficient
         l = 0.0  # l1 lasso coefficient
         g = alpha  # group lasso coefficient
-        num_ft = Am.shape[1]
-        groups = [Am[:,i:] for i in range(lag_len)]
-        A = gl.linear_operator_from_groups(num_ft, groups)
+        #NOTE SLICEの向き
+
+        lag_group = [np.arange(i,P*lag_len,lag_len) for i in range(lag_len)]
+        groups = [lag_group[:i+1] for i in range(lag_len)]
+        for i in range(lag_len):
+            ar_num = len(groups[i])
+            tmp = groups[i][0]
+            for j in range(ar_num - 1):
+                tmp = np.append(tmp, groups[i][j + 1])
+            groups[i] = tmp
+        print(groups)
+        A = gl.linear_operator_from_groups(P * lag_len, groups)
         estimator = estimators.LinearRegressionL1L2GL(
             k, l, g, A=A,
             algorithm=algorithms.proximal.FISTA(),
@@ -135,9 +144,15 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
         k = 0.0  # l2 ridge regression coefficient
         l = 0.0  # l1 lasso coefficient
         g = alpha  # group lasso coefficient
-        num_ft = Am.shape[1]
-        groups = [Am_train[:, i:] for i in range(lag_len)]
-        A = gl.linear_operator_from_groups(num_ft, groups)
+        lag_group = [np.arange(i,P*lag_len,lag_len) for i in range(lag_len)]
+        groups = [lag_group[:i+1] for i in range(lag_len)]
+        for i in range(lag_len):
+            ar_num = len(groups[i])
+            tmp = groups[i][0]
+            for j in range(ar_num - 1):
+                tmp = np.append(tmp, groups[i][j + 1])
+            groups[i] = tmp
+        A = gl.linear_operator_from_groups(P * lag_len, groups)
         estimator = estimators.LinearRegressionL1L2GL(
             k, l, g, A=A,
             algorithm=algorithms.proximal.FISTA(),

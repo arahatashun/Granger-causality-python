@@ -7,13 +7,14 @@ Code for demonstration
 
 import sys
 sys.path.append('./granger_python')
+sys.path.append('../pylearn-parsimony')
 import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 import time
 from run_ilasso import solve_loop
 from ilasso import ilasso
-from ilasso import ilasso
+from igrouplasso import igrouplasso
 from graph_compare import f_score
 import pickle
 
@@ -137,121 +138,62 @@ def main():
     ax2.spy(cause, 0.4)
     ax2.set_title('Inferred Causality')
     plt.show()
-    # print("cosine distance", spatial.distance.cosine(A.flatten(), cause.flatten()))
-    score = f_score(A, cause)
-    print("F score", score)
 
 
-def test1():
+def test_ilasso():
     N = 20
     T = 1000
-    sig = 0.2
-    series, A = gen_synth_lagged(N, T, sig)
-    # Run Lasso-Granger
-    alpha = 1e-2
-    L = 1  # only one lag for analysis
-    cause = np.zeros((N, N))
-    for i in range(N):
-        index = [i] + list(range(i)) + list(range(i + 1, N))
-        cause_tmp = lasso_granger(series[index, :], L, alpha)
-        index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
-        cause[i, :] = cause_tmp[index]
-    fig, axs = plt.subplots(1, 2)
-    ax1 = axs[0]
-    ax2 = axs[1]
-    ax1.spy(A)
-    ax1.set_title('Ground Truth')
-    ax2.spy(cause, 0.4)
-    ax2.set_title('Inferred Causality')
-    plt.show()
-    score = f_score(A, cause)
-    plt.plot(series[0])
-    plt.plot(series[1])
-    plt.plot(series[2])
-    plt.plot(series[3])
-    plt.show()
-    print("F score", score)
-
-
-def test2():
-    N = 20
-    T = 1000
+    lag_len = 3
     sig = 0.1
     series, A_array = gen_synth_lagged(N, T, sig)
     # Run Lasso-Granger
     alpha = 1e-2
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
-    start = time.time()
-    print(len(cell_array))
-    print(cell_array[0].shape)
-    cause = solve_loop(cell_array, alpha, 0.1, 3, 1)
-    elapsed_time = time.time() - start
-    print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+    cause,*_= solve_loop(cell_array, alpha, lag_len, cv = False, group = False)
     fig, axs = plt.subplots(3, 2)
-    ax1 = axs[0, 0]
-    ax2 = axs[0, 1]
-    ax1.spy(A_array[0])
-    ax1.set_title('Ground Truth')
-    ax1.matshow(A_array[0], cmap=plt.cm.Blues)
-    ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
-    ax2.set_title('Inferred Causality')
-    ax1 = axs[1, 0]
-    ax2 = axs[1, 1]
-    ax1.matshow(A_array[1], cmap=plt.cm.Blues)
-    ax1.set_title('Ground Truth')
-    ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
-    ax2.set_title('Inferred Causality')
-    ax1 = axs[2, 0]
-    ax2 = axs[2, 1]
-    ax1.matshow(A_array[2], cmap=plt.cm.Blues)
-    ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
-    ax1.set_title('Ground Truth')
-    ax2.set_title('Inferred Causality')
+    for i in range(lag_len):
+        ax1 = axs[i,0]
+        ax2 = axs[i,1]
+        ax1.spy(A_array[0])
+        ax1.set_title('Ground Truth')
+        ax2.matshow(cause[:, :, 2 - i], cmap=plt.cm.Blues)
+        ax2.set_title('Inferred Causality')
     plt.show()
 
 
-def test3():
+def compare_group():
     N = 20
     T = 1000
+    lag_len = 3
     sig = 0.1
     series, A_array = gen_synth_lagged(N, T, sig)
     # Run Lasso-Granger
     alpha = 1e-2
-    cause = np.zeros((N, N, 3))
+    alpha_group = 1e-1
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
-    start = time.time()
-    for i in range(N):
-        order = [i] + list(range(i)) + list(range(i + 1, N))
-        new_cell = [cell_array[i] for i in order]
-        cause_tmp,_,_ = ilasso(new_cell, alpha, 0.1, 3, 1)
-        index = list(range(1, i + 1)) + [0] + list(range(i + 1, N))
-        cause[i, :, :] = cause_tmp[index, :]
-    elapsed_time = time.time() - start
-    print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
-    fig, axs = plt.subplots(3, 2)
-    ax1 = axs[0, 0]
-    ax2 = axs[0, 1]
-    ax1.spy(A_array[0])
-    ax1.set_title('Ground Truth')
-    ax1.matshow(A_array[0], cmap=plt.cm.Blues)
-    ax2.matshow(cause[:, :, 2], cmap=plt.cm.Blues)
-    ax2.set_title('Inferred Causality')
-    ax1 = axs[1, 0]
-    ax2 = axs[1, 1]
-    ax1.matshow(A_array[1], cmap=plt.cm.Blues)
-    ax1.set_title('Ground Truth')
-    ax2.matshow(cause[:, :, 1], cmap=plt.cm.Blues)
-    ax2.set_title('Inferred Causality')
-    ax1 = axs[2, 0]
-    ax2 = axs[2, 1]
-    ax1.matshow(A_array[2], cmap=plt.cm.Blues)
-    ax2.matshow(cause[:, :, 0], cmap=plt.cm.Blues)
-    ax1.set_title('Ground Truth')
-    ax2.set_title('Inferred Causality')
+    cause,*_= solve_loop(cell_array, alpha, lag_len, cv = False, group = False)
+    group_cause,*_ = solve_loop(cell_array, alpha_group, lag_len, cv = False, group = True)
+    fig, axs = plt.subplots(lag_len, 3)
+    for i in range(3):
+        ax1 = axs[i,0]
+        ax1.spy(A_array[i])
+        ax1.set_title('Ground Truth')
+    for i in range(lag_len):
+        ax2 = axs[i,1]
+        cause[:, :, lag_len -1 - i][cause[:, :, lag_len - 1 - i] > 0.1] = 1
+        cause[:, :, lag_len -1 - i][cause[:, :, lag_len - 1 - i] < 1] = 0
+        ax2.matshow(cause[:, :, lag_len - 1  - i], cmap=plt.cm.Blues)
+        ax2.set_title('GLG Causality')
+        ax3 = axs[i, 2]
+        group_cause[:, :, lag_len - 1 - i][group_cause[:, :, lag_len - 1 - i] > 0.1] = 1
+        group_cause[:, :, lag_len - 1 - i][group_cause[:, :, lag_len - 1 - i] < 1] = 0
+        ax3.matshow(group_cause[:, :, lag_len - 1 - i], cmap=plt.cm.Blues)
+        ax3.set_title('HGLG Causality')
     plt.show()
 
 
 if __name__ == '__main__':
-    main()
+    #test_ilasso()
+    compare_group()

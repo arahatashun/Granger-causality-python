@@ -11,8 +11,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 cell = np.load('data.npy')
-alpha = 1e-7
-cause, aic, bic = solve_loop(cell, alpha, 3, cv=False, group=True)
+alpha = 1e-1
+cause, aic, bic, _ = solve_loop(cell, alpha, 3, cv=True, group=False)
 np.savetxt('result3.csv', cause[:, :, 0], delimiter=',')
 np.savetxt('result2.csv', cause[:, :, 1], delimiter=',')
 np.savetxt('result1.csv', cause[:, :, 2], delimiter=',')
@@ -42,14 +42,14 @@ ans = gen_ans()
 fig, axs = plt.subplots(3, 2)
 for i in range(3):
     ax1 = axs[i, 0]
-    ax1.spy(ans[i])
-    #ax1.matshow(ans[i], cmap=plt.cm.Blues)
+    #ax1.spy(ans[i])
+    ax1.matshow(ans[i], cmap=plt.cm.Blues)
     ax1.set_title('Ground Truth')
     ax2 = axs[i, 1]
-    cause[:, :, 2 - i][cause[:, :, 2 - i] > 0.25] = 1
+    cause[:, :, 2 - i][cause[:, :, 2 - i] > 0.1] = 1
     cause[:, :, 2 - i][cause[:, :, 2 - i] < 1] = 0
     #ax2.spy(cause[:, :, 2 - i])
-    #ax2.matshow(cause[:, :, 2 - i], cmap=plt.cm.Blues)
+    ax2.matshow(cause[:, :, 2 - i], cmap=plt.cm.Blues)
     ax2.set_title('Inferred Causality')
 
 plt.show()
