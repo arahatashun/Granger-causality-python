@@ -8,8 +8,9 @@ import numpy as np
 from multiprocessing import Pool
 from tqdm import tqdm
 from ilasso import ilasso
+from igrouplasso import igrouplasso
 
-def solve_loop(cell_array, alpha, lag_len,cv = False):
+def solve_loop(cell_array, alpha, lag_len,cv = False, group = False):
     """solve irregular lasso in parallel
 
     :param cell_array:one cell for each time series. Each cell is a 2xT matrix.
@@ -29,7 +30,7 @@ def solve_loop(cell_array, alpha, lag_len,cv = False):
         sigma = avg_dt/4 # Comparison of correlation analysis techniques for irregularly sampled time series
         order = [i] + list(range(i)) + list(range(i + 1, total_features))
         new_cell = [cell_array[i] for i in order]
-        argument_for_process.append((new_cell, i, total_features, alpha, sigma, lag_len, avg_dt, cv))
+        argument_for_process.append((new_cell, i, total_features, alpha, sigma, lag_len, avg_dt, cv, group))
     pool = Pool()
     outputs = []
     pbar = tqdm(total=total_features)
@@ -66,15 +67,25 @@ def solve_loop(cell_array, alpha, lag_len,cv = False):
 
 
 
-def process_worker(new_cell, i, n, alpha, sigma, lag_len, dt, cv):
+def process_worker(new_cell, i, n, alpha, sigma, lag_len, dt, cv, group):
     if cv == False:
-        cause_tmp, aic, bic = ilasso(new_cell, alpha, sigma, lag_len, dt, cv)
-        index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
-        return cause_tmp[index, :], aic, bic, i
+        if group == False:
+            cause_tmp, aic, bic = ilasso(new_cell, alpha, sigma, lag_len, dt, cv)
+            index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
+            return cause_tmp[index, :], aic, bic, i
+        if group == True:
+            cause_tmp, aic, bic = igrouplasso(new_cell, alpha, sigma, lag_len, dt, cv)
+            index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
+            return cause_tmp[index, :], aic, bic, i
     else:
-        cause_tmp, aic, bic, error = ilasso(new_cell, alpha, sigma, lag_len, dt, cv)
-        index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
-        return cause_tmp[index, :], aic, bic, i, error
+        if group == False:
+            cause_tmp, aic, bic, error = ilasso(new_cell, alpha, sigma, lag_len, dt, cv)
+            index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
+            return cause_tmp[index, :], aic, bic, i, error
+        if group == True:
+            cause_tmp, aic, bic, error = igrouplasso(new_cell, alpha, sigma, lag_len, dt, cv)
+            index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
+            return cause_tmp[index, :], aic, bic, i, error
 
 def wrap_worker(arg):
     """wrapper function"""
