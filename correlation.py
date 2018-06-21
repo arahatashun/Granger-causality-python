@@ -37,7 +37,7 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         # kernel is used as window function
         # time_match is a cell_list[time_match][1, :] nearest to tij
         time_match = np.searchsorted(cell_b[1, :], ti)
-        kernel_length = 4  # half of kernel length
+        kernel_length = 5  # half of kernel length
 
         start = time_match - kernel_length if time_match - kernel_length > 0 else 0
         end = time_match + kernel_length if time_match + kernel_length < len(cell_b[1, :]) - 1 else len(cell_b[1, :])
@@ -53,13 +53,13 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         assert np.isfinite(Kernel).all() == 1, str(Kernel)
         denominator_tmp = np.sum(Kernel)
         numerator_tmp= np.sum(x * y_select * Kernel)
-        #assert np.all(x * y_select < 1), str(y_select)
-        #assert abs(numerator_tmp)/abs(denominator_tmp) <= 1, ' numerator:'+str(numerator)+' denominator:'+str(denominator)+\' x*y:'+str(x * y_select)
+        assert np.all(x * y_select < 1), 'x:'+str(x)+' y:'+str(y_select)+' x*y_select:'+str(x*y_select)
+        assert abs(numerator_tmp)/abs(denominator_tmp) <= 1, ' numerator:'+str(numerator)+' denominator:'+str(denominator)+' x*y:'+str(x * y_select)
         denominator += denominator_tmp
         numerator += numerator_tmp
 
     correlation = numerator / denominator
-    print("correlation", correlation)
+    #print("correlation", correlation)
     return correlation
 
 
@@ -90,6 +90,7 @@ def calc_cor(cell_array, lag_len=0):
         y = output_list[i][2]
         correlation_matrix[x, y] = correlation
         correlation_matrix[y, x] = correlation
+    correlation_matrix = normalize_cor_mat(correlation_matrix)
     print(correlation_matrix)
     return correlation_matrix
 
@@ -102,3 +103,13 @@ def process_worker(new_cell, i, j, sigma, lag_len, dt):
 def wrap_worker(arg):
     """wrapper function"""
     return process_worker(*arg)
+
+
+def normalize_cor_mat(cor_mat):
+    num_features = cor_mat.shape[0]
+    sum = 0
+    for i in range(num_features):
+        sum += cor_mat[i,i]
+    norm = sum/num_features
+    return cor_mat/norm
+
