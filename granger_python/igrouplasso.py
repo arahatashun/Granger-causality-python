@@ -109,12 +109,13 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
             for j in range(ar_num - 1):
                 tmp = np.append(tmp, groups[i][j + 1])
             groups[i] = tmp
-        print(groups)
+        print(len(groups))
+        print(Am.shape)
         A = gl.linear_operator_from_groups(P * lag_len, groups)
         estimator = estimators.LinearRegressionL1L2GL(
             k, l, g, A=A,
             algorithm=algorithms.proximal.FISTA(),
-            algorithm_params=dict(max_iter=1000))
+            algorithm_params=dict(max_iter=5000))
         res = estimator.fit(Am, bm)
         weight = res.beta
 
@@ -156,7 +157,7 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
         estimator = estimators.LinearRegressionL1L2GL(
             k, l, g, A=A,
             algorithm=algorithms.proximal.FISTA(),
-            algorithm_params=dict(max_iter=1000))
+            algorithm_params=dict(max_iter=5000))
         res = estimator.fit(Am_train, bm_train)
         weight = res.beta
 

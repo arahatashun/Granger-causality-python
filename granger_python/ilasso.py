@@ -69,7 +69,7 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt, cv):
                                       (lag_len, cell_list[j][1, start:end].size)).T
             ySelect = np.broadcast_to(cell_list[j][0, start:end],
                                       (lag_len, cell_list[j][0, start:end].size)).T
-            exponent = -(np.multiply((tij - tSelect), (tij - tSelect)) / sigma)
+            exponent = -(np.multiply((tij - tSelect), (tij - tSelect)) / 2*sigma**2)
             # assert np.isfinite(exponent).all() == 1, str(exponent)
             Kernel = np.exp(exponent)
             # assert np.isfinite(Kernel).all() == 1, str(Kernel)
