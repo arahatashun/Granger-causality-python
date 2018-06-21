@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 # Author: Shun Arahata
 """
-Code for collilation slotting
+Code for correlation slotting
 """
 import numpy as np
 from tqdm import tqdm
@@ -37,7 +37,7 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         # kernel is used as window function
         # time_match is a cell_list[time_match][1, :] nearest to tij
         time_match = np.searchsorted(cell_b[1, :], ti)
-        kernel_length = 5  # half of kernel length
+        kernel_length = 1  # half of kernel length
 
         start = time_match - kernel_length if time_match - kernel_length > 0 else 0
         end = time_match + kernel_length if time_match + kernel_length < len(cell_b[1, :]) - 1 else len(cell_b[1, :])
@@ -45,21 +45,31 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         t_select = cell_b[1, start:end].T
         t_select = t_select.reshape(len(t_select), 1)
         y_select = cell_b[0, start:end].T
-        kernel_b = np.abs(np.abs(tij - t_select) - lag * dt)
-        assert kernel_b.shape == t_select.shape, print('tselect', t_select.shape, "kernel_b", kernel_b.shape)
-        exponent = -(np.multiply(kernel_b, kernel_b) / (2*sigma**2))
+
+        tij = tij.reshape(end-start, 1)
+        t_select = t_select.reshape(end-start, 1)
+        y_select = y_select.reshape(end-start, 1)
+        kernel_bin = np.abs(np.abs(tij - t_select) - lag * dt)
+        assert kernel_bin.shape == t_select.shape, print('tselect', t_select.shape, "kernel_b", kernel_bin.shape)
+        exponent = -(kernel_bin * kernel_bin) / (2 * sigma ** 2)
         assert np.isfinite(exponent).all() == 1, str(exponent)
-        Kernel = np.exp(exponent)/(np.sqrt(2*np.pi*sigma))
+        Kernel = np.exp(exponent) / np.sqrt(2 * np.pi * sigma)
+        for k in range(end-start):
+            if kernel_bin[k] < dt:
+                print(kernel_bin[k])
+                Kernel[k] = 1
+            else:
+                Kernel[k] = 0
         assert np.isfinite(Kernel).all() == 1, str(Kernel)
         denominator_tmp = np.sum(Kernel)
-        numerator_tmp= np.sum(x * y_select * Kernel)
-        assert np.all(x * y_select < 1), 'x:'+str(x)+' y:'+str(y_select)+' x*y_select:'+str(x*y_select)
-        assert abs(numerator_tmp)/abs(denominator_tmp) <= 1, ' numerator:'+str(numerator)+' denominator:'+str(denominator)+' x*y:'+str(x * y_select)
-        denominator += denominator_tmp
-        numerator += numerator_tmp
+        numerator_tmp = np.sum(x * y_select * Kernel)
+        assert np.all(x * y_select < 1), 'x:' + str(x) + ' y:' + str(y_select) + ' x*y_select:' + str(x * y_select)
+        assert abs(numerator_tmp) / abs(denominator_tmp) <= 1, ' numerator:' + str(numerator) + ' denominator:' + str(denominator) + ' x*y:' + str(x * y_select)
+        denominator = denominator + denominator_tmp
+        numerator = numerator + numerator_tmp
 
     correlation = numerator / denominator
-    #print("correlation", correlation)
+    # print("correlation", correlation)
     return correlation
 
 
@@ -109,7 +119,7 @@ def normalize_cor_mat(cor_mat):
     num_features = cor_mat.shape[0]
     sum = 0
     for i in range(num_features):
-        sum += cor_mat[i,i]
-    norm = sum/num_features
-    return cor_mat/norm
+        sum += cor_mat[i, i]
+    norm = sum / num_features
+    return cor_mat / norm
 

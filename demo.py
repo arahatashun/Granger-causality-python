@@ -16,6 +16,7 @@ from run_ilasso import solve_loop
 from ilasso import ilasso
 from igrouplasso import igrouplasso
 from graph_compare import f_score
+from correlation import  calc_cor, calc_each_cor
 import pickle
 
 def gen_synth(N, T, sig):
@@ -31,7 +32,7 @@ def gen_synth(N, T, sig):
     """
     assert N % 4 == 0, "N must be a multiple of 4"
     K = np.array(
-        [[0.9, 0, 0, 0], [1, 0.9, 0, 0], [1, 0, 0.9, 0], [1, 0, 0, 0.9]])
+        [[0.9, 0, 0, 0], [0, 1.1, 0, 0], [0, 0, 1.1, 0], [0, 0, 0, 0.9]])
     A = np.kron(np.eye(int(N / 4)), K)
     series = np.zeros((N, T))
     series[:, 0] = np.random.randn(N)
@@ -163,6 +164,7 @@ def test_ilasso():
 
 
 def compare_group():
+    """compare group lasso and non group lasso"""
     N = 20
     T = 1000
     lag_len = 3
@@ -193,7 +195,16 @@ def compare_group():
         ax3.set_title('HGLG Causality')
     plt.show()
 
+def comp_correlation():
+    N = 4
+    T = 1000
+    sig = 0.01
+    series, A_array = gen_synth(N, T, sig)
+    normed = (series - series.mean(axis=0)) / series.std(axis=0)
+    cell_array = gen_list_iLasso(normed, np.arange(normed.shape[1]))
+    calc_cor(cell_array)
+    ans = np.corrcoef(series)
+    print(ans)
 
 if __name__ == '__main__':
-    #test_ilasso()
-    compare_group()
+    comp_correlation()
