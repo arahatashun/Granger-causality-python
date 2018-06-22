@@ -103,8 +103,6 @@ def calc_cor(cell_array, lag_len=0):
         correlation_matrix[x, y] = correlation
         correlation_matrix[y, x] = correlation
     print('not normalized\n', correlation_matrix)
-    correlation_matrix = normalize_cor_mat(correlation_matrix)
-    print('normalized\n', correlation_matrix)
     return correlation_matrix
 
 
