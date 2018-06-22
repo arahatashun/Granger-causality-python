@@ -32,7 +32,7 @@ def gen_synth(N, T, sig):
     """
     assert N % 4 == 0, "N must be a multiple of 4"
     K = np.array(
-        [[0.9, 0, 0, 0], [0, 1.1, 0, 0], [0, 0, 1.1, 0], [0, 0, 0, 0.9]])
+        [[0.9, 0, 0, 0], [0, 0.9, 0, 0], [0, 0, 0.9, 0], [0, 0, 0, 0.9]])
     A = np.kron(np.eye(int(N / 4)), K)
     series = np.zeros((N, T))
     series[:, 0] = np.random.randn(N)
@@ -200,7 +200,7 @@ def comp_correlation():
     T = 1000
     sig = 0.01
     series, A_array = gen_synth(N, T, sig)
-    normed = (series - series.mean(axis=0)) / series.std(axis=0)
+    normed = series - series.mean(axis=1, keepdims=True)/ series.std(axis=1, keepdims=True)
     cell_array = gen_list_iLasso(normed, np.arange(normed.shape[1]))
     calc_cor(cell_array)
     ans = np.corrcoef(series)
