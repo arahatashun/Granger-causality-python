@@ -23,8 +23,6 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
     :param dt: max (dta dtb)
     :return correlation
     """
-    cell_a[0, :] = (cell_a[0, :] - cell_a[0, :].mean(axis=0)) / cell_a[0, :].std(axis=0)
-    cell_b[0, :] = (cell_b[0, :] - cell_b[0, :].mean(axis=0)) / cell_b[0, :].std(axis=0)
     # number of index of time of explained variable
     N1 = cell_a[0, :].shape[0]
     denominator = 0
@@ -54,12 +52,13 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         exponent = -(kernel_bin * kernel_bin) / (2 * sigma ** 2)
         assert np.isfinite(exponent).all() == 1, str(exponent)
         Kernel = np.exp(exponent) / np.sqrt(2 * np.pi * sigma)
+        '''
         for k in range(end-start):
-            if kernel_bin[k] < dt:
-                print(kernel_bin[k])
+            if kernel_bin[k] < dt/2:
                 Kernel[k] = 1
             else:
                 Kernel[k] = 0
+        '''
         assert np.isfinite(Kernel).all() == 1, str(Kernel)
         denominator_tmp = np.sum(Kernel)
         numerator_tmp = np.sum(x * y_select * Kernel)
@@ -69,7 +68,10 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         numerator = numerator + numerator_tmp
 
     correlation = numerator / denominator
+    # print(numerator)
+    # print(denominator)
     # print("correlation", correlation)
+    # print(np.sum(cell_a[0,:]*cell_b[0,:]))
     return correlation
 
 
@@ -100,8 +102,9 @@ def calc_cor(cell_array, lag_len=0):
         y = output_list[i][2]
         correlation_matrix[x, y] = correlation
         correlation_matrix[y, x] = correlation
+    print('not normalized\n', correlation_matrix)
     correlation_matrix = normalize_cor_mat(correlation_matrix)
-    print(correlation_matrix)
+    print('normalized\n', correlation_matrix)
     return correlation_matrix
 
 
