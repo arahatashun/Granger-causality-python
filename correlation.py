@@ -62,7 +62,7 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         assert np.isfinite(Kernel).all() == 1, str(Kernel)
         denominator_tmp = np.sum(Kernel)
         numerator_tmp = np.sum(x * y_select * Kernel)
-        assert abs(numerator_tmp) / abs(denominator_tmp) <= 1, ' numerator:' + str(numerator) + ' denominator:' + str(denominator) + ' x*y:' + str(x * y_select)
+        #assert abs(numerator_tmp) / abs(denominator_tmp) <= 1, ' numerator:' + str(numerator) + ' denominator:' + str(denominator) + ' x*y:' + str(x * y_select)
         denominator = denominator + denominator_tmp
         numerator = numerator + numerator_tmp
 
