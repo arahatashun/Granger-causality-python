@@ -35,7 +35,8 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         # kernel is used as window function
         # time_match is a cell_list[time_match][1, :] nearest to tij
         time_match = np.searchsorted(cell_b[1, :], ti)
-        kernel_length = 1  # half of kernel length
+        kernel_length = 10  # half of kernel length
+
 
         start = time_match - kernel_length if time_match - kernel_length > 0 else 0
         end = time_match + kernel_length if time_match + kernel_length < len(cell_b[1, :]) - 1 else len(cell_b[1, :])
