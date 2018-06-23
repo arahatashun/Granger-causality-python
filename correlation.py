@@ -47,7 +47,7 @@ def calc_each_cor(cell_a, cell_b, sigma, lag, dt):
         tij = tij.reshape(end-start, 1)
         t_select = t_select.reshape(end-start, 1)
         y_select = y_select.reshape(end-start, 1)
-        kernel_bin = np.abs(np.abs(tij - t_select) - lag * dt)
+        kernel_bin = np.abs(tij - t_select - lag * dt)
         assert kernel_bin.shape == t_select.shape, print('tselect', t_select.shape, "kernel_b", kernel_bin.shape)
         exponent = -(kernel_bin * kernel_bin) / (2 * sigma ** 2)
         assert np.isfinite(exponent).all() == 1, str(exponent)
@@ -100,7 +100,6 @@ def calc_cor(cell_array, lag_len=0):
         x = output_list[i][1]
         y = output_list[i][2]
         correlation_matrix[x, y] = correlation
-        correlation_matrix[y, x] = correlation
     print('not normalized\n', correlation_matrix)
     return correlation_matrix
 
