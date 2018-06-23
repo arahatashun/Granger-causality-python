@@ -79,7 +79,7 @@ def calc_cor(cell_array, lag_len=0):
     num_features = len(cell_array)
     argument_for_process = []
     for i in range(num_features):
-        for j in np.arange(i, num_features):
+        for j in range(num_features):
             dtx = (cell_array[i][1][-1] - cell_array[i][1][0]) / len(cell_array[i][0])
             dty = (cell_array[j][1][-1] - cell_array[j][1][0]) / len(cell_array[j][0])
             assert dtx > 0, "index:" + str(i)
