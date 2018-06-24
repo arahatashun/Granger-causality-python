@@ -60,7 +60,7 @@ def ilasso(cell_list, alpha, sigma, lag_len, dt, cv):
             # reduce kernel length in order to reduce complexity of calculation
             # kernel is used as window function
             # time_match is a cell_list[time_match][1, :] nearest to tij
-            time_match = np.searchsorted(cell_list[j][1,:], cell_list[0][1, i])
+            time_match = np.searchsorted(cell_list[j][1, :], cell_list[0][1, i])
             kernel_length = 25 # half of kernel length
             start = time_match - kernel_length if time_match-kernel_length > 0 else 0
             end = time_match + kernel_length if time_match + kernel_length < len(cell_list[j][1, :])-1 else len(cell_list[j][1, :])
