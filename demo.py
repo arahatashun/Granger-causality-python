@@ -163,7 +163,7 @@ def test_ilasso():
     plt.show()
 
 
-def compare_group():
+def comp_group():
     """compare group lasso and non group lasso"""
     N = 20
     T = 1000
@@ -207,4 +207,4 @@ def comp_correlation():
     print(ans)
 
 if __name__ == '__main__':
-    comp_correlation()
+    comp_group()

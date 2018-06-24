@@ -4,9 +4,11 @@
 """
 Code for irregular Group lasso Granger
 """
+import sys
+
 import numpy as np
 from numpy import linalg as LA
-import sys
+
 sys.path.append('../../pylearn-parsimony')
 import parsimony.estimators as estimators
 import parsimony.algorithms as algorithms
@@ -32,8 +34,7 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
         result: The NxL coefficient matrix.
     """
 
-
-    #for test
+    # for test
     # sigma = 0.1
     # alpha = 1e-2
     # dt = 1
@@ -51,10 +52,10 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
     # for loop for stored time stamp
     for i in range(B, N1):
         # ti is defined by explained variable
-        ti = np.linspace((cell_list[0][1, i] - lag_len * dt),cell_list[0][1, i] - dt , num = lag_len)
+        ti = np.linspace((cell_list[0][1, i] - lag_len * dt), cell_list[0][1, i] - dt, num=lag_len)
         # for loop for features
         for j in range(P):
-            assert len(ti) == lag_len, str(len(ti))+str(lag_len)+"length does not match"
+            assert len(ti) == lag_len, str(len(ti)) + str(lag_len) + "length does not match"
             """
             tij = np.broadcast_to(ti, (len(cell_list[j][1, :]), ti.size))
             tSelect = np.broadcast_to(cell_list[j][1, :],
@@ -65,10 +66,11 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
             # reduce kernel length in order to reduce complexity of calculation
             # kernel is used as window function
             # time_match is a cell_list[time_match][1, :] nearest to tij
-            time_match = np.searchsorted(cell_list[j][1,:], cell_list[0][1, i])
-            kernel_length = 25 # half of kernel length
-            start = time_match - kernel_length if time_match-kernel_length > 0 else 0
-            end = time_match + kernel_length if time_match + kernel_length < len(cell_list[j][1, :])-1 else len(cell_list[j][1, :])
+            time_match = np.searchsorted(cell_list[j][1, :], cell_list[0][1, i])
+            kernel_length = 25  # half of kernel length
+            start = time_match - kernel_length if time_match - kernel_length > 0 else 0
+            end = time_match + kernel_length if time_match + kernel_length < len(cell_list[j][1, :]) - 1 else len(
+                cell_list[j][1, :])
             tij = np.broadcast_to(ti, (len(cell_list[j][1, start:end]), ti.size))
             tSelect = np.broadcast_to(cell_list[j][1, start:end],
                                       (lag_len, cell_list[j][1, start:end].size)).T
@@ -83,8 +85,8 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
                 numerator = np.sum(np.multiply(ySelect, Kernel), axis=0)
                 # assert np.isfinite(numerator).all() ==1,str(numerator)
                 # assert np.isfinite(ker_sum).all() ==1,str(ker_sum)
-                tmp = np.divide(numerator,ker_sum)
-                tmp[ker_sum==0] = 1
+                tmp = np.divide(numerator, ker_sum)
+                tmp[ker_sum == 0] = 1
                 # assert (np.isfinite(tmp)).all() == 1,str(tmp)+str(ker_sum)
             """
             if np.sum(Kernel, axis=0).any() == 0:
@@ -99,18 +101,18 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
         k = 0.0  # l2 ridge regression coefficient
         l = 0.0  # l1 lasso coefficient
         g = alpha  # group lasso coefficient
-        #NOTE SLICEの向き
+        # NOTE SLICEの向き
 
-        lag_group = [np.arange(i,P*lag_len,lag_len) for i in range(lag_len)]
-        groups = [lag_group[:i+1] for i in range(lag_len)]
+        lag_group = [np.arange(i, P * lag_len, lag_len) for i in range(lag_len)]
+        groups = [lag_group[:i + 1] for i in range(lag_len)]
         for i in range(lag_len):
             ar_num = len(groups[i])
             tmp = groups[i][0]
             for j in range(ar_num - 1):
                 tmp = np.append(tmp, groups[i][j + 1])
             groups[i] = tmp
-        print(len(groups))
-        print(Am.shape)
+        # print(len(groups))
+        # print(Am.shape)
         A = gl.linear_operator_from_groups(P * lag_len, groups)
         estimator = estimators.LinearRegressionL1L2GL(
             k, l, g, A=A,
@@ -134,19 +136,18 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
             result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
 
         return result, aic, bic
-    else :
+    else:
         last_index = int((N1 - B) * 0.7)
         Am_train = Am[:last_index]
         bm_train = bm[:last_index]
         Am_test = Am[last_index:]
         bm_test = bm[last_index:]
 
-
         k = 0.0  # l2 ridge regression coefficient
         l = 0.0  # l1 lasso coefficient
         g = alpha  # group lasso coefficient
-        lag_group = [np.arange(i,P*lag_len,lag_len) for i in range(lag_len)]
-        groups = [lag_group[:i+1] for i in range(lag_len)]
+        lag_group = [np.arange(i, P * lag_len, lag_len) for i in range(lag_len)]
+        groups = [lag_group[:i + 1] for i in range(lag_len)]
         for i in range(lag_len):
             ar_num = len(groups[i])
             tmp = groups[i][0]
