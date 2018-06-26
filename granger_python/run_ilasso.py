@@ -4,11 +4,13 @@
 """
 Code for run irregular lasso parallel processing
 """
-import numpy as np
 from multiprocessing import Pool
-from tqdm import tqdm
-from ilasso import ilasso
+
+import matplotlib.pyplot as plt
+import numpy as np
 from igrouplasso import igrouplasso
+from ilasso import ilasso
+from tqdm import tqdm
 
 
 def solve_loop(cell_array, alpha, lag_len, cv=False, group=False):
@@ -105,3 +107,34 @@ def test_solve(cell_array, alpha, lag_len):
     new_cell = [cell_array[i] for i in order]
     ilasso(new_cell, alpha, sigma, lag_len, avg_dt)
     return None
+
+
+def search_optimum_lambda(cell_array, lambda_max, lag_len):
+    """ search optimum lambda
+
+    :param cell_array:
+    :param lambda_max:
+    :param lag_len:
+    :return:
+    """
+    # first make 10 sequence
+    lambda_min = 0.001
+    cv_error = []
+    lambda_list = []
+    while abs(lambda_max / lambda_min - 1) > 0.1:
+        _, _, _, error_max = solve_loop(cell_array, lambda_max, lag_len, cv=True, group=False)
+        _, _, _, error_min = solve_loop(cell_array, lambda_min, lag_len, cv=True, group=False)
+        lambda_list.append(lambda_min)
+        cv_error.append(error_min)
+        lambda_list.append(lambda_max)
+        cv_error.append(error_max)
+        if error_min > error_max:
+            lambda_min = 1 / 2 * (np.log10(lambda_max) + np.log10(lambda_min))
+            lambda_min = 10 ** lambda_min
+        else:
+            lambda_max = 1 / 2 * (np.log10(lambda_max) + np.log10(lambda_min))
+            lambda_max = 10 ** lambda_max
+    print("Optimum lambda", lambda_max)
+    plt.scatter(lambda_list, cv_error)
+    plt.show()
+    return lambda_max

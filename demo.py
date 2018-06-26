@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 import time
-from run_ilasso import solve_loop
+from run_ilasso import solve_loop, search_optimum_lambda
 from ilasso import ilasso
 from igrouplasso import igrouplasso
 from graph_compare import f_score
@@ -151,12 +151,13 @@ def test_ilasso():
     alpha = 1e-2
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
-    cause,*_= solve_loop(cell_array, alpha, lag_len, cv = False, group = False)
+    optimum_lamba = search_optimum_lambda(cell_array, 1e-1, 3)
+    cause,*_= solve_loop(cell_array, optimum_lamba, lag_len, cv = False, group = False)
     fig, axs = plt.subplots(3, 2)
     for i in range(lag_len):
         ax1 = axs[i,0]
         ax2 = axs[i,1]
-        ax1.spy(A_array[0])
+        ax1.spy(A_array[i])
         ax1.set_title('Ground Truth')
         ax2.matshow(cause[:, :, 2 - i], cmap=plt.cm.Blues)
         ax2.set_title('Inferred Causality')
@@ -207,4 +208,4 @@ def comp_correlation():
     print(ans)
 
 if __name__ == '__main__':
-    comp_group()
+    test_ilasso()
