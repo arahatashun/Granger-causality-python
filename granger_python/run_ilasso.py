@@ -109,7 +109,7 @@ def test_solve(cell_array, alpha, lag_len):
     return None
 
 
-def search_optimum_lambda(cell_array, lambda_max, lag_len):
+def search_optimum_lambda(cell_array,lambda_min, lambda_max, lag_len):
     """ search optimum lambda
 
     :param cell_array:
@@ -117,24 +117,27 @@ def search_optimum_lambda(cell_array, lambda_max, lag_len):
     :param lag_len:
     :return:
     """
-    # first make 10 sequence
-    lambda_min = 0.001
     cv_error = []
     lambda_list = []
-    while abs(lambda_max / lambda_min - 1) > 0.1:
-        _, _, _, error_max = solve_loop(cell_array, lambda_max, lag_len, cv=True, group=False)
-        _, _, _, error_min = solve_loop(cell_array, lambda_min, lag_len, cv=True, group=False)
-        lambda_list.append(lambda_min)
-        cv_error.append(error_min)
-        lambda_list.append(lambda_max)
-        cv_error.append(error_max)
+    _, _, _, error_max = solve_loop(cell_array, lambda_max, lag_len, cv=True, group=False)
+    _, _, _, error_min = solve_loop(cell_array, lambda_min, lag_len, cv=True, group=False)
+    optimum = 0
+    while abs(lambda_max / lambda_min - 1) > 0.01:
         if error_min > error_max:
             lambda_min = 1 / 2 * (np.log10(lambda_max) + np.log10(lambda_min))
             lambda_min = 10 ** lambda_min
+            _, _, _, error_min = solve_loop(cell_array, lambda_min, lag_len, cv=True, group=False)
+            lambda_list.append(lambda_min)
+            cv_error.append(error_min)
+            optimum = lambda_min
         else:
             lambda_max = 1 / 2 * (np.log10(lambda_max) + np.log10(lambda_min))
             lambda_max = 10 ** lambda_max
-    print("Optimum lambda", lambda_max)
-    plt.scatter(lambda_list, cv_error)
+            _, _, _, error_max = solve_loop(cell_array, lambda_max, lag_len, cv=True, group=False)
+            lambda_list.append(lambda_max)
+            cv_error.append(error_max)
+            optimum = lambda_max
+    print("Optimum lambda", optimum)
+    plt.scatter(-np.log10(lambda_list), cv_error)
     plt.show()
     return lambda_max

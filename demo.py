@@ -151,7 +151,7 @@ def test_ilasso():
     alpha = 1e-2
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
-    optimum_lamba = search_optimum_lambda(cell_array, 1e-1, 3)
+    optimum_lamba = search_optimum_lambda(cell_array, 1e-5, 1e-1, 3)
     cause,*_= solve_loop(cell_array, optimum_lamba, lag_len, cv = False, group = False)
     fig, axs = plt.subplots(3, 2)
     for i in range(lag_len):
