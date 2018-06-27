@@ -125,8 +125,7 @@ def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, grid=20):
         _, _, _, error = solve_loop(cell_array, 10 ** j, lag_len, cv=True, group=False)
         lambda_list.append(j)
         cv_error.append(error)
-    print(cv_error)
-    print(np.argmin(cv_error))
+
     optimum = lambda_list[np.argmin(cv_error)]
 
     optimum = 10 ** optimum
