@@ -109,7 +109,7 @@ def test_solve(cell_array, alpha, lag_len):
     return None
 
 
-def search_optimum_lambda(cell_array,lambda_min, lambda_max, lag_len):
+def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, grid=20):
     """ search optimum lambda
 
     :param cell_array:
@@ -119,25 +119,18 @@ def search_optimum_lambda(cell_array,lambda_min, lambda_max, lag_len):
     """
     cv_error = []
     lambda_list = []
-    _, _, _, error_max = solve_loop(cell_array, lambda_max, lag_len, cv=True, group=False)
-    _, _, _, error_min = solve_loop(cell_array, lambda_min, lag_len, cv=True, group=False)
-    optimum = 0
-    while abs(lambda_max / lambda_min - 1) > 0.01:
-        if error_min > error_max:
-            lambda_min = 1 / 2 * (np.log10(lambda_max) + np.log10(lambda_min))
-            lambda_min = 10 ** lambda_min
-            _, _, _, error_min = solve_loop(cell_array, lambda_min, lag_len, cv=True, group=False)
-            lambda_list.append(lambda_min)
-            cv_error.append(error_min)
-            optimum = lambda_min
-        else:
-            lambda_max = 1 / 2 * (np.log10(lambda_max) + np.log10(lambda_min))
-            lambda_max = 10 ** lambda_max
-            _, _, _, error_max = solve_loop(cell_array, lambda_max, lag_len, cv=True, group=False)
-            lambda_list.append(lambda_max)
-            cv_error.append(error_max)
-            optimum = lambda_max
+    lambda_exponent = np.linspace(np.log10(lambda_min), np.log10(lambda_max), grid)
+    for i, j in enumerate(lambda_exponent):
+        print(i)
+        _, _, _, error = solve_loop(cell_array, 10 ** j, lag_len, cv=True, group=False)
+        lambda_list.append(j)
+        cv_error.append(error)
+    print(cv_error)
+    print(np.argmin(cv_error))
+    optimum = lambda_list[np.argmin(cv_error)]
+
+    optimum = 10 ** optimum
     print("Optimum lambda", optimum)
-    plt.scatter(-np.log10(lambda_list), cv_error)
+    plt.scatter(lambda_list, cv_error)
     plt.show()
-    return lambda_max
+    return optimum
