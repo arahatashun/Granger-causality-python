@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 import time
-from run_ilasso import solve_loop, search_optimum_lambda
+from run_ilasso import solve_loop, search_optimum_lambda, test_solve
 from ilasso import ilasso
 from igrouplasso import igrouplasso
 from graph_compare import f_score
@@ -176,6 +176,7 @@ def comp_group():
     alpha_group = 1e-1
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
+    test_solve(cell_array, alpha, lag_len)
     cause,*_= solve_loop(cell_array, alpha, lag_len, cv = False, group = False)
     group_cause,*_ = solve_loop(cell_array, alpha_group, lag_len, cv = False, group = True)
     fig, axs = plt.subplots(lag_len, 3)
@@ -208,4 +209,4 @@ def comp_correlation():
     print(ans)
 
 if __name__ == '__main__':
-    test_ilasso()
+    comp_group()

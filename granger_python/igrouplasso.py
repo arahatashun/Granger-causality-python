@@ -6,17 +6,32 @@ Code for irregular Group lasso Granger
 """
 import sys
 
+sys.path.append("/home/shun/Program/copt")
+import copt as cp
 import numpy as np
 from numpy import linalg as LA
-
-sys.path.append('../../pylearn-parsimony')
-import parsimony.estimators as estimators
-import parsimony.algorithms as algorithms
-import parsimony.functions.nesterov.gl as gl
-
+import numpy as np
+import rpy2
+import rpy2.robjects as robjects
+from rpy2.robjects import FloatVector
+from rpy2.robjects.packages import importr
+from rpy2.robjects.vectors import ListVector, DataFrame
+from collections import OrderedDict
+import rpy2.robjects.numpy2ri
+rpy2.robjects.numpy2ri.activate()
+grpregOverlap= importr('grpregOverlap')
+robjects.r('''
+                # create a function `f`
+                r_grpregOverlap <- function(X, y, group, alpha, verbose = FALSE) {
+                    if (verbose) {
+                        cat("I am calling f().\n")
+                    }
+                   grpregOverlap(X, y, group, penalty ='grLasso',lambda = alpha)
+                }
+                ''')
 
 # @profile
-def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
+def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
     """
     Learning temporal dependency among irregular time series ussing Lasso (or its variants)
     NOTE:Target is one variable.
@@ -76,7 +91,7 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
                                       (lag_len, cell_list[j][1, start:end].size)).T
             ySelect = np.broadcast_to(cell_list[j][0, start:end],
                                       (lag_len, cell_list[j][0, start:end].size)).T
-            exponent = -(np.multiply((tij - tSelect), (tij - tSelect)) / 2*sigma**2)
+            exponent = -(np.multiply((tij - tSelect), (tij - tSelect)) / 2 * sigma ** 2)
             # assert np.isfinite(exponent).all() == 1, str(exponent)
             Kernel = np.exp(exponent)
             # assert np.isfinite(Kernel).all() == 1, str(Kernel)
@@ -98,12 +113,9 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
     # assert (np.isfinite(Am)).all() == True,str(Am)
     # Solving Lasso using a solver; here the 'GLMnet' package
     if cv == False:
-        k = 0.0  # l2 ridge regression coefficient
-        l = 0.0  # l1 lasso coefficient
-        g = alpha  # group lasso coefficient
         # NOTE SLICEの向き
 
-        lag_group = [np.arange(i, P * lag_len, lag_len) for i in range(lag_len)]
+        lag_group = [np.arange(i+1, P * lag_len+1, lag_len, dtype=np.float) for i in range(lag_len)]
         groups = [lag_group[:i + 1] for i in range(lag_len)]
         for i in range(lag_len):
             ar_num = len(groups[i])
@@ -111,15 +123,12 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv):
             for j in range(ar_num - 1):
                 tmp = np.append(tmp, groups[i][j + 1])
             groups[i] = tmp
-        # print(len(groups))
-        # print(Am.shape)
-        A = gl.linear_operator_from_groups(P * lag_len, groups)
-        estimator = estimators.LinearRegressionL1L2GL(
-            k, l, g, A=A,
-            algorithm=algorithms.proximal.FISTA(),
-            algorithm_params=dict(max_iter=5000))
-        res = estimator.fit(Am, bm)
-        weight = res.beta
+        r = robjects.r
+        r_vector = [r.c(*groups[i]) for i in range(len(groups))]
+        r_group = r.list(*r_vector)
+        r_grpregOverlap = robjects.globalenv['r_grpregOverlap']
+        fit = r_grpregOverlap(Am, bm, r_group, alpha)
+        weight = np.asarray(r.coef(fit))[1:] # remove intercept
 
         # Computing the BIC and AIC metrics
         bic = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
