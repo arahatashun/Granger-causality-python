@@ -7,7 +7,6 @@ Code for irregular Group lasso Granger
 import sys
 
 sys.path.append("/home/shun/Program/copt")
-import copt as cp
 import numpy as np
 from numpy import linalg as LA
 import numpy as np
