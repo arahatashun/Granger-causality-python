@@ -17,6 +17,7 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import ListVector, DataFrame
 from collections import OrderedDict
 import rpy2.robjects.numpy2ri
+import gc
 rpy2.robjects.numpy2ri.activate()
 grpregOverlap= importr('grpregOverlap')
 robjects.r('''
@@ -115,73 +116,34 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
         # NOTE SLICEの向き
 
         lag_group = [np.arange(i+1, P * lag_len+1, lag_len, dtype=np.float) for i in range(lag_len)]
-        groups = [lag_group[:i + 1] for i in range(lag_len)]
-        for i in range(lag_len):
-            ar_num = len(groups[i])
-            tmp = groups[i][0]
-            for j in range(ar_num - 1):
-                tmp = np.append(tmp, groups[i][j + 1])
-            groups[i] = tmp
+        groups = [lag_group[lag_len-1-i:] for i in range(lag_len)]
+        for i in range(len(groups)):
+            groups[i] = np.concatenate([groups[i][j] for j in range(len(groups[i]))], axis=0)
+
         r = robjects.r
         r_vector = [r.c(*groups[i]) for i in range(len(groups))]
         r_group = r.list(*r_vector)
         r_grpregOverlap = robjects.globalenv['r_grpregOverlap']
         fit = r_grpregOverlap(Am, bm, r_group, alpha)
         weight = np.asarray(r.coef(fit))[1:] # remove intercept
-
+        gc.collect()
         # Computing the BIC and AIC metrics
+        """
         bic = LA.norm(Am @ weight - bm) ** 2 - np.log(N1 - B) * np.sum(
             weight == 0) / 2
         aic = LA.norm(Am @ weight - bm) ** 2 - 2 * np.sum(weight == 0) / 2
-
+        """
         # weight_shape_before = weight.shape
         # weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
         # assert np.isnan(weight).all() == False
 
         # Reformatting the output
         result = np.zeros((P, lag_len))
+        print(weight)
+        exit()
         for i in range(P):
             result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
 
-        return result, aic, bic
+        return result, 0, 0
     else:
-        last_index = int((N1 - B) * 0.7)
-        Am_train = Am[:last_index]
-        bm_train = bm[:last_index]
-        Am_test = Am[last_index:]
-        bm_test = bm[last_index:]
-
-        k = 0.0  # l2 ridge regression coefficient
-        l = 0.0  # l1 lasso coefficient
-        g = alpha  # group lasso coefficient
-        lag_group = [np.arange(i, P * lag_len, lag_len) for i in range(lag_len)]
-        groups = [lag_group[:i + 1] for i in range(lag_len)]
-        for i in range(lag_len):
-            ar_num = len(groups[i])
-            tmp = groups[i][0]
-            for j in range(ar_num - 1):
-                tmp = np.append(tmp, groups[i][j + 1])
-            groups[i] = tmp
-        A = gl.linear_operator_from_groups(P * lag_len, groups)
-        estimator = estimators.LinearRegressionL1L2GL(
-            k, l, g, A=A,
-            algorithm=algorithms.proximal.FISTA(),
-            algorithm_params=dict(max_iter=5000))
-        res = estimator.fit(Am_train, bm_train)
-        weight = res.beta
-
-        test_error = LA.norm(Am_test @ weight - bm_test) ** 2 / (N1 - B - last_index)
-        # Computing the BIC and AIC metrics
-        bic = LA.norm(Am_train @ weight - bm_train) ** 2 - np.log(N1 - B) * np.sum(weight == 0) / 2
-        aic = LA.norm(Am_train @ weight - bm_train) ** 2 - 2 * np.sum(weight == 0) / 2
-
-        # weight_shape_before = weight.shape
-        # weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
-        # assert np.isnan(weight).all() == False
-
-        # Reformatting the output
-        result = np.zeros((P, lag_len))
-        for i in range(P):
-            result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
-
-        return result, aic, bic, test_error
+        return
