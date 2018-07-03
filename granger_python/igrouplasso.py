@@ -139,8 +139,7 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
 
         # Reformatting the output
         result = np.zeros((P, lag_len))
-        print(weight)
-        exit()
+
         for i in range(P):
             result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
 
