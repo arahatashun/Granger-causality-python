@@ -131,6 +131,7 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
         del r_group
         del r_vector
         weight = np.asarray(r.coef(fit))[1:] # remove intercept
+        del r
         gc.collect()
         # Computing the BIC and AIC metrics
         """
