@@ -110,6 +110,7 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
             """
             Am[i - B, (j * lag_len):(j + 1) * lag_len] = tmp
 
+    gc.collect()
     # assert (np.isfinite(Am)).all() == True,str(Am)
     # Solving Lasso using a solver; here the 'GLMnet' package
     if cv == False:
@@ -119,12 +120,12 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
         groups = [lag_group[lag_len-1-i:] for i in range(lag_len)]
         for i in range(len(groups)):
             groups[i] = np.concatenate([groups[i][j] for j in range(len(groups[i]))], axis=0)
-
         r = robjects.r
         r_vector = [r.c(*groups[i]) for i in range(len(groups))]
         r_group = r.list(*r_vector)
         r_grpregOverlap = robjects.globalenv['r_grpregOverlap']
         fit = r_grpregOverlap(Am, bm, r_group, alpha)
+        gc.collect()
         weight = np.asarray(r.coef(fit))[1:] # remove intercept
         gc.collect()
         # Computing the BIC and AIC metrics
@@ -141,7 +142,7 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
         result = np.zeros((P, lag_len))
 
         for i in range(P):
-            result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
+            result[i, :] = weight[i * lag_len:(i + 1) * lag_len]
 
         return result, 0, 0
     else:
