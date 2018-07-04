@@ -126,6 +126,10 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
         r_grpregOverlap = robjects.globalenv['r_grpregOverlap']
         fit = r_grpregOverlap(Am, bm, r_group, alpha)
         gc.collect()
+        del Am
+        del bm
+        del r_group
+        del r_vector
         weight = np.asarray(r.coef(fit))[1:] # remove intercept
         gc.collect()
         # Computing the BIC and AIC metrics
