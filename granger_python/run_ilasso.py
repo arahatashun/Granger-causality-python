@@ -37,7 +37,7 @@ def solve_loop(cell_array, alpha, lag_len, cv=False, group=False):
         argument_for_process.append((new_cell, i, total_features, alpha, sigma, lag_len, avg_dt, cv, group))
     pool = Pool()
     outputs = []
-    pbar = tqdm(total=total_features)
+    pbar = tqdm(total=total_features,position=0)
     for _, output in enumerate(pool.imap_unordered(wrap_worker, argument_for_process)):
         pbar.update()
         outputs.append(output)
@@ -105,7 +105,7 @@ def test_solve(cell_array, alpha, lag_len):
     sigma = avg_dt / 4  # Comparison of correlation analysis techniques for irregularly sampled time series
     order = [i] + list(range(i)) + list(range(i + 1, total_features))
     new_cell = [cell_array[i] for i in order]
-    ilasso(new_cell, alpha, sigma, lag_len, avg_dt)
+    igrouplasso(new_cell, alpha, sigma, lag_len, avg_dt)
     return None
 
 
