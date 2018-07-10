@@ -11,7 +11,7 @@ import numpy as np
 from igrouplasso import igrouplasso
 from ilasso import ilasso
 from tqdm import tqdm
-
+import pyprind
 
 def solve_loop(cell_array, alpha, lag_len, cv=False, group=False):
     """solve irregular lasso in parallel
@@ -37,11 +37,11 @@ def solve_loop(cell_array, alpha, lag_len, cv=False, group=False):
         argument_for_process.append((new_cell, i, total_features, alpha, sigma, lag_len, avg_dt, cv, group))
     pool = Pool()
     outputs = []
-    pbar = tqdm(total=total_features,position=0)
+    bar = pyprind.ProgBar(total_features, bar_char='█')
     for _, output in enumerate(pool.imap_unordered(wrap_worker, argument_for_process)):
-        pbar.update()
+        bar.update()
         outputs.append(output)
-    pbar.close()
+    print(bar)
     if cv is False:
         aic = np.zeros(total_features)
         bic = np.zeros(total_features)
