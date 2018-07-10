@@ -37,7 +37,7 @@ def solve_loop(cell_array, alpha, lag_len, cv=False, group=False):
         argument_for_process.append((new_cell, i, total_features, alpha, sigma, lag_len, avg_dt, cv, group))
     pool = Pool()
     outputs = []
-    bar = pyprind.ProgBar(total_features, bar_char='█')
+    bar = pyprind.ProgBar(total_features, bar_char='█',title='PROGRESS')
     for _, output in enumerate(pool.imap_unordered(wrap_worker, argument_for_process)):
         bar.update()
         outputs.append(output)
