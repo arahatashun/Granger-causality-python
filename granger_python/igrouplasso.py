@@ -18,6 +18,7 @@ from rpy2.robjects.vectors import ListVector, DataFrame
 from collections import OrderedDict
 import rpy2.robjects.numpy2ri
 import gc
+from itertools import chain
 rpy2.robjects.numpy2ri.activate()
 grpregOverlap= importr('grpregOverlap')
 robjects.r('''
@@ -115,11 +116,12 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
     # Solving Lasso using a solver; here the 'GLMnet' package
     if cv == False:
         # NOTE SLICEの向き
+        groups = []
+        for i in range(lag_len):
+            for j in range(P):
+                #NOTE dype must be float
+                groups.append(lag_len*j + np.array([lag_len - i for i in range(i+1)], dtype=np.float))
 
-        lag_group = [np.arange(i+1, P * lag_len+1, lag_len, dtype=np.float) for i in range(lag_len)]
-        groups = [lag_group[lag_len-1-i:] for i in range(lag_len)]
-        for i in range(len(groups)):
-            groups[i] = np.concatenate([groups[i][j] for j in range(len(groups[i]))], axis=0)
         r = robjects.r
         r_vector = [r.c(*groups[i]) for i in range(len(groups))]
         r_group = r.list(*r_vector)
