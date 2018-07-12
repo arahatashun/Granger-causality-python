@@ -109,12 +109,13 @@ def test_solve(cell_array, alpha, lag_len):
     return None
 
 
-def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, grid=20):
+def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, group=False, grid=20):
     """ search optimum lambda
 
     :param cell_array:
     :param lambda_max:
     :param lag_len:
+    :param group:
     :return:
     """
     cv_error = []
@@ -122,7 +123,7 @@ def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, grid=20):
     lambda_exponent = np.linspace(np.log10(lambda_min), np.log10(lambda_max), grid)
     for i, j in enumerate(lambda_exponent):
         print(i)
-        _, _, _, error = solve_loop(cell_array, 10 ** j, lag_len, cv=True, group=False)
+        _, _, _, error = solve_loop(cell_array, 10 ** j, lag_len, cv=True, group=group)
         lambda_list.append(j)
         cv_error.append(error)
 

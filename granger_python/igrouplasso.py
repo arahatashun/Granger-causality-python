@@ -114,18 +114,18 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
     gc.collect()
     # assert (np.isfinite(Am)).all() == True,str(Am)
     # Solving Lasso using a solver; here the 'GLMnet' package
-    if cv == False:
-        # NOTE SLICEの向き
-        groups = []
-        for i in range(lag_len):
-            for j in range(P):
-                #NOTE dype must be float
-                groups.append(lag_len*j + np.array([lag_len - i for i in range(i+1)], dtype=np.float))
+    # NOTE SLICEの向き
+    groups = []
+    for i in range(lag_len):
+        for j in range(P):
+            # NOTE dype must be float
+            groups.append(lag_len * j + np.array([lag_len - i for i in range(i + 1)], dtype=np.float))
 
-        r = robjects.r
-        r_vector = [r.c(*groups[i]) for i in range(len(groups))]
-        r_group = r.list(*r_vector)
-        r_grpregOverlap = robjects.globalenv['r_grpregOverlap']
+    r = robjects.r
+    r_vector = [r.c(*groups[i]) for i in range(len(groups))]
+    r_group = r.list(*r_vector)
+    r_grpregOverlap = robjects.globalenv['r_grpregOverlap']
+    if cv == False:
         fit = r_grpregOverlap(Am, bm, r_group, alpha)
         gc.collect()
         del Am
@@ -153,4 +153,31 @@ def igrouplasso(cell_list, alpha, sigma, lag_len, dt, cv = False):
 
         return result, 0, 0
     else:
-        return
+        last_index = int((N1 - B) * 0.7)
+        Am_train = Am[:last_index]
+        bm_train = bm[:last_index]
+        Am_test = Am[last_index:]
+        bm_test = bm[last_index:]
+        fit = r_grpregOverlap(Am_train, bm_train, r_group, alpha)
+        gc.collect()
+        del Am
+        del bm
+        del r_group
+        del r_vector
+        weight = np.asarray(r.coef(fit))[1:]  # remove intercept
+        intercept = np.asarray(r.coef(fit))[0]
+        del r
+        gc.collect()
+        test_error = LA.norm(Am_test @ weight - bm_test - intercept) ** 2 / (N1 - B - last_index)
+        # Computing the BIC and AIC metrics
+        # weight_shape_before = weight.shape
+        # weight_shape_after = weight[np.logical_not(np.isnan(weight))].shape
+        # assert np.isnan(weight).all() == False
+
+        # Reformatting the output
+        result = np.zeros((P, lag_len))
+        for i in range(P):
+            result[i, :] = weight[i * lag_len:(i + 1) * lag_len].ravel()
+
+        return result, 0, 0, test_error
+
