@@ -5,6 +5,7 @@
 Code for Generalized lasso Granger 
 """
 import numpy as np
+import glmnet_python
 from glmnet import glmnet
 from numpy import linalg as LA
 
