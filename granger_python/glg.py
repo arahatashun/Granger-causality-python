@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 # Author: Shun Arahata
 """
-Code for Generalized lasso Granger
+Code for Generalized lasso Granger 
 """
 import numpy as np
 from glmnet import glmnet
