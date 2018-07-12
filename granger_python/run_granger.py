@@ -8,8 +8,7 @@ from multiprocessing import Pool
 import matplotlib.pyplot as plt
 import numpy as np
 import pyprind
-from igrouplasso import igrouplasso
-from ilasso import ilasso
+import multiprocessing as multi
 from glg import GLG
 from hglg import HGLG
 
@@ -36,12 +35,13 @@ def solve_parallel(cell_array, alpha, lag_len, group=False):
         new_cell = [cell_array[i] for i in order]
         argument_for_process.append((new_cell, i, total_features, alpha, sigma, lag_len, avg_dt, group))
     # start multiprocessing
-    pool = Pool()
+    pool = Pool(multi.cpu_count()-1)
     outputs = []
     bar = pyprind.ProgBar(total_features, width=60, bar_char='#', title='PROGRESS')
     for _, output in enumerate(pool.imap_unordered(wrap_worker, argument_for_process)):
         bar.update()
         outputs.append(output)
+    pool.close()
     print(bar)
     for i in range(total_features):
         j = outputs[i]['index']
@@ -98,10 +98,11 @@ def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, group=Fal
             glg: object = HGLG(new_cell, sigma, lag_len, avg_dt)
         argument_for_process = [(glg, 10 ** lambda_exponent[i], i) for i in range(grid)]
         # Parallel calculation for cross validation
-        pool = Pool()
+        pool = Pool(multi.cpu_count()-1)
         for _, output in enumerate(pool.imap_unordered(cv_wrap_worker, argument_for_process)):
             bar.update()
             cv_error[output['index']] += output['error']
+        pool.close()
 
     print(bar)
     optimum = lambda_exponent[np.argmin(cv_error)]
