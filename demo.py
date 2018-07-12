@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from lassoGranger import lasso_granger
 import time
-from run_ilasso import solve_loop, search_optimum_lambda, test_solve
+from run_granger import solve_parallel, search_optimum_lambda
 from ilasso import ilasso
 from igrouplasso import igrouplasso
 from graph_compare import f_score
@@ -151,8 +151,8 @@ def test_ilasso():
     alpha = 1e-2
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
-    optimum_lamba = search_optimum_lambda(cell_array, 1e-5, 1e-1, 3)
-    cause,*_= solve_loop(cell_array, optimum_lamba, lag_len, cv = False, group = False)
+    optimum_lamba = search_optimum_lambda(cell_array, 1e-5, 1e-1, 3, group=True)
+    cause = solve_parallel(cell_array, optimum_lamba, lag_len, group = False)
     fig, axs = plt.subplots(3, 2)
     for i in range(lag_len):
         ax1 = axs[i,0]
@@ -173,22 +173,21 @@ def comp_group():
     series, A_array = gen_synth_lagged(N, T, sig)
     # Run Lasso-Granger
     alpha = 1e-2
-    alpha_group = 1e-1
+    alpha_group = 1e-2
     series = inject_nan(series, 0.1)
     cell_array = gen_list_iLasso(series, np.arange(series.shape[1]))
-    test_solve(cell_array, alpha, lag_len)
-    cause,*_= solve_loop(cell_array, alpha, lag_len, cv = False, group = False)
-    group_cause,*_ = solve_loop(cell_array, alpha_group, lag_len, cv = False, group = True)
+    cause = solve_parallel(cell_array, alpha, lag_len, group = False)
+    group_cause = solve_parallel(cell_array, alpha_group, lag_len, group = True)
     fig, axs = plt.subplots(lag_len, 3)
     for i in range(3):
         ax1 = axs[i,0]
         ax1.spy(A_array[i])
         ax1.set_title('Ground Truth')
     for i in range(lag_len):
-        ax2 = axs[i,1]
-        cause[:, :, lag_len -1 - i][cause[:, :, lag_len - 1 - i] > 0.1] = 1
-        cause[:, :, lag_len -1 - i][cause[:, :, lag_len - 1 - i] < 1] = 0
-        ax2.matshow(cause[:, :, lag_len - 1  - i], cmap=plt.cm.Blues)
+        ax2 = axs[i, 1]
+        cause[:, :, lag_len - 1 - i][cause[:, :, lag_len - 1 - i] > 0.1] = 1
+        cause[:, :, lag_len - 1 - i][cause[:, :, lag_len - 1 - i] < 1] = 0
+        ax2.matshow(cause[:, :, lag_len - 1 - i], cmap=plt.cm.Blues)
         ax2.set_title('GLG Causality')
         ax3 = axs[i, 2]
         group_cause[:, :, lag_len - 1 - i][group_cause[:, :, lag_len - 1 - i] > 0.1] = 1
@@ -196,6 +195,7 @@ def comp_group():
         ax3.matshow(group_cause[:, :, lag_len - 1 - i], cmap=plt.cm.Blues)
         ax3.set_title('HGLG Causality')
     plt.show()
+
 
 def comp_correlation():
     N = 4
@@ -209,4 +209,4 @@ def comp_correlation():
     print(ans)
 
 if __name__ == '__main__':
-    comp_group()
+    test_ilasso()

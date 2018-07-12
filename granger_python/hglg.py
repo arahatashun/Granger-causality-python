@@ -53,6 +53,7 @@ class HGLG(GLG):
         del self.Am
         del self.bm
         del grpregOverlap
+        del r
         weight = np.asarray(r.coef(fit))[1:]  # remove intercept
         gc.collect()
 
@@ -70,10 +71,10 @@ class HGLG(GLG):
         Am = self.Am
         bm = self.bm
         last_index = int((self.N1 - self.B) * 0.7)
-        Am_train = Am[:last_index]
-        bm_train = bm[:last_index]
-        Am_test = Am[last_index:]
-        bm_test = bm[last_index:]
+        Am_train = Am[:last_index,:]
+        bm_train = bm[:last_index,:]
+        Am_test = Am[last_index:,:]
+        bm_test = bm[last_index:,:]
         grpregOverlap = importr('grpregOverlap')
         robjects.r('''
                                 # create a function `f`
@@ -89,10 +90,11 @@ class HGLG(GLG):
         gc.collect()
         del grpregOverlap
         weight = np.asarray(r.coef(fit))[1:]  # remove intercept
-        intercept = np.asarray(r.coef(fit))[0:]
+        intercept = np.asarray(r.coef(fit))[0]
         del r
+        del grpregOverlap
         gc.collect()
-        error = LA.norm(Am_test @ weight - bm_test-intercept) ** 2 / (self.N1 - self.B - last_index)
+        error = LA.norm(Am_test @ weight - bm_test - intercept) ** 2 / (self.N1 - self.B - last_index)
 
         # Reformatting the output
         result = np.zeros((self.P, self.lag_len))

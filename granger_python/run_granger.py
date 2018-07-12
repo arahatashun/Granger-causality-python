@@ -11,7 +11,7 @@ import pyprind
 from igrouplasso import igrouplasso
 from ilasso import ilasso
 from glg import GLG
-
+from hglg import HGLG
 
 def solve_parallel(cell_array, alpha, lag_len, group=False):
     """solve Granger lasso in parallel
@@ -58,7 +58,8 @@ def process_worker(new_cell, i, n, alpha, sigma, lag_len, dt, group):
         dict = {'cause': cause_tmp[index, :], 'index': i}
         return dict
     if group is True:
-        cause_tmp = igrouplasso(new_cell, alpha, sigma, lag_len, dt)
+        hglg = HGLG(new_cell, sigma, lag_len, dt)
+        cause_tmp = hglg.calculate(alpha)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
         dict = {'cause': cause_tmp[index, :], 'index': i}
         return dict
@@ -93,6 +94,8 @@ def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, group=Fal
         new_cell = [cell_array[i] for i in order]
         if group is False:
             glg: object = GLG(new_cell, sigma, lag_len, avg_dt)
+        elif group is True:
+            glg: object = HGLG(new_cell, sigma, lag_len, avg_dt)
         argument_for_process = [(glg, 10 ** lambda_exponent[i], i) for i in range(grid)]
         # Parallel calculation for cross validation
         pool = Pool()
