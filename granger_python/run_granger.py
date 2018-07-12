@@ -109,7 +109,7 @@ def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, group=Fal
     print("Optimum lambda", optimum)
     plt.scatter(lambda_exponent, cv_error)
     plt.show()
-    #plt.savefig("lambda_search.png")
+    plt.savefig("lambda_search.png")
     return optimum
 
 
