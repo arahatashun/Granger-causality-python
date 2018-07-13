@@ -4,21 +4,13 @@
 """
 Code for irregular Group lasso Granger
 """
-import sys
 
-sys.path.append("/home/shun/Program/copt")
-import numpy as np
 from numpy import linalg as LA
 import numpy as np
-import rpy2
 import rpy2.robjects as robjects
-from rpy2.robjects import FloatVector
 from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import ListVector, DataFrame
-from collections import OrderedDict
 import rpy2.robjects.numpy2ri
 import gc
-from itertools import chain
 rpy2.robjects.numpy2ri.activate()
 grpregOverlap= importr('grpregOverlap')
 robjects.r('''

@@ -92,7 +92,6 @@ class HGLG(GLG):
         weight = np.asarray(r.coef(fit))[1:]  # remove intercept
         intercept = np.asarray(r.coef(fit))[0]
         del r
-        del grpregOverlap
         gc.collect()
         error = LA.norm(Am_test @ weight - bm_test - intercept) ** 2 / (self.N1 - self.B - last_index)
 
