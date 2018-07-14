@@ -53,9 +53,9 @@ class HGLG(GLG):
         del self.Am
         del self.bm
         del grpregOverlap
-        del r
         weight = np.asarray(r.coef(fit))[1:]  # remove intercept
         gc.collect()
+        del r
 
 
         # Reformatting the output
