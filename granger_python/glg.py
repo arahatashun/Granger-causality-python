@@ -90,6 +90,7 @@ class GLG:
         except:
             print("index:",index)
             traceback.print_exc()
+            raise Exception('glmnet error')
 
         weight = fit['beta']  # array of coefficient
         # Reformatting the output
