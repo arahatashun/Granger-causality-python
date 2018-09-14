@@ -89,6 +89,7 @@ class GLG:
         try:
             fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1, lambdau=np.array([alpha]))
         except:
+            print('')
             print('------------------')
             print("index:",self.index)
             print('------------------')
