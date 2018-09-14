@@ -8,7 +8,7 @@ import numpy as np
 import glmnet_python
 from glmnet import glmnet
 from numpy import linalg as LA
-
+import traceback
 
 class GLG:
     def __init__(self, cell_list, sigma, lag_len, dt):
@@ -85,7 +85,11 @@ class GLG:
     def calculate(self,alpha):
         Am = self.Am
         bm = self.bm
-        fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1, lambdau=np.array([alpha]))
+        try:
+		fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1, lambdau=np.array([alpha]))
+	except:
+		traceback.print_exc()
+		
         weight = fit['beta']  # array of coefficient
         # Reformatting the output
         result = np.zeros((self.P, self.lag_len))
