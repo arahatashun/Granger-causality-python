@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 # Author: Shun Arahata
 """
-Code for Generalized lasso Granger 
+Code for Generalized lasso Granger
 """
 import numpy as np
 import glmnet_python
@@ -11,7 +11,7 @@ from numpy import linalg as LA
 import traceback
 
 class GLG:
-    def __init__(self, cell_list, sigma, lag_len, dt):
+    def __init__(self, cell_list, sigma, lag_len, dt, index):
         """ starts pre processing
         :param cell_list:one cell for each time series. Each cell is a 2xT matrix.
         First row contains the values and the second row contains SORTED time stamps.
@@ -86,10 +86,11 @@ class GLG:
         Am = self.Am
         bm = self.bm
         try:
-		fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1, lambdau=np.array([alpha]))
-	except:
-		traceback.print_exc()
-		
+            fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1, lambdau=np.array([alpha]))
+        except:
+            print("index:",index)
+            traceback.print_exc()
+
         weight = fit['beta']  # array of coefficient
         # Reformatting the output
         result = np.zeros((self.P, self.lag_len))

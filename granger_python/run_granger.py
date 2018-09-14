@@ -51,7 +51,7 @@ def solve_parallel(cell_array, alpha, lag_len, group=False):
 
 def process_worker(new_cell, i, n, alpha, sigma, lag_len, dt, group):
     if group is False:
-        glg = GLG(new_cell, sigma, lag_len, dt)
+        glg = GLG(new_cell, sigma, lag_len, dt ,i)
         cause_tmp = glg.calculate(alpha)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
         dict = {'cause': cause_tmp[index, :], 'index': i}
