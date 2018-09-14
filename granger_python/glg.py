@@ -21,6 +21,7 @@ class GLG:
         :param lag_len: Length of studied lag
         :param dt:Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
         """
+        self.index = index
         # index of last time which is less than lag_len*dt　- 1
         B = np.argmax(cell_list[0][1, :] > lag_len * dt)
         assert B >= 0, " lag_len DT error"
@@ -88,7 +89,7 @@ class GLG:
         try:
             fit = glmnet(x=Am, y=bm, family='gaussian', alpha=1, lambdau=np.array([alpha]))
         except:
-            print("index:",index)
+            print("index:",self.index)
             traceback.print_exc()
             raise Exception('glmnet error')
 
