@@ -91,9 +91,9 @@ def search_optimum_lambda(cell_array, lambda_min, lambda_max, lag_len, group=Fal
         order = [i] + list(range(i)) + list(range(i + 1, total_features))
         new_cell = [cell_array[i] for i in order]
         if group is False:
-            glg: object = GLG(new_cell, sigma, lag_len, avg_dt)
+            glg: object = GLG(new_cell, sigma, lag_len, avg_dt,i)
         elif group is True:
-            glg: object = HGLG(new_cell, sigma, lag_len, avg_dt)
+            glg: object = HGLG(new_cell, sigma, lag_len, avg_dt,i)
         argument_for_process = [(glg, 10 ** lambda_exponent[i], i) for i in range(grid)]
         # Parallel calculation for cross validation
         pool = Pool(multi.cpu_count()-1)
