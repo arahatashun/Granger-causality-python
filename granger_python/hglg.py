@@ -14,7 +14,7 @@ import gc
 from glg import GLG
 
 class HGLG(GLG):
-    def __init__(self, cell_list, sigma, lag_len, dt):
+    def __init__(self, cell_list, sigma, lag_len, dt, index):
         """ starts pre processing
             :param cell_list:one cell for each time series. Each cell is a 2xT matrix.
             First row contains the values and the second row contains SORTED time stamps.
@@ -24,6 +24,7 @@ class HGLG(GLG):
             :param lag_len: Length of studied lag
             :param dt:Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
         """
+        self.index = index
         super().__init__(cell_list, sigma, lag_len, dt)
         groups = []
         for i in range(self.lag_len):
