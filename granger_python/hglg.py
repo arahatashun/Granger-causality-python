@@ -24,8 +24,7 @@ class HGLG(GLG):
             :param lag_len: Length of studied lag
             :param dt:Delta t denotes the  average  length  of  the  sampling  intervals for the target time series
         """
-        self.index = index
-        super().__init__(cell_list, sigma, lag_len, dt)
+        super().__init__(cell_list, sigma, lag_len, dt, index)
         groups = []
         for i in range(self.lag_len):
             for j in range(self.P):
