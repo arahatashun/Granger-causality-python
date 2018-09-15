@@ -112,7 +112,15 @@ class GLG:
         bm_train = bm[:last_index]
         Am_test = Am[last_index:]
         bm_test = bm[last_index:]
-        fit = glmnet(x=Am_train, y=bm_train, family='gaussian', alpha=1, lambdau=np.array([alpha]))
+        try:
+            fit = glmnet(x=Am_train, y=bm_train, family='gaussian', alpha=1, lambdau=np.array([alpha]))
+        except:
+            print('')
+            print('------------------')
+            print("index:",self.index)
+            print('------------------')
+            traceback.print_exc()
+            raise Exception('glmnet error')
         weight = fit['beta']  # array of coefficient
         error = LA.norm(Am_test @ weight - bm_test) ** 2 / (self.N1 - self.B - last_index)
 
