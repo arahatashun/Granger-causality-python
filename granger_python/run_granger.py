@@ -57,7 +57,7 @@ def process_worker(new_cell, i, n, alpha, sigma, lag_len, dt, group):
         dict = {'cause': cause_tmp[index, :], 'index': i}
         return dict
     if group is True:
-        hglg = HGLG(new_cell, sigma, lag_len, dt)
+        hglg = HGLG(new_cell, sigma, lag_len, dt, i)
         cause_tmp = hglg.calculate(alpha)
         index = list(range(1, i + 1)) + [0] + list(range(i + 1, n))
         dict = {'cause': cause_tmp[index, :], 'index': i}
