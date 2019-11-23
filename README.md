@@ -9,3 +9,5 @@ to python.
 pip install glmnet_py
 sudo apt-get install libgfortran3
 ```
+## Reference
+Paper: A. Arnold, Y. Liu, and N. Abe. Temporal causal modeling with graphical granger methods. In KDD, 2007.
