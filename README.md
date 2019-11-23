@@ -11,3 +11,4 @@ sudo apt-get install libgfortran3
 ```
 ## Reference
 Paper: A. Arnold, Y. Liu, and N. Abe. Temporal causal modeling with graphical granger methods. In KDD, 2007.
+Available at https://www.andrewoarnold.com/frp781-arnold.pdf
